@@ -17,7 +17,8 @@ enum class ProjectStatus{
     TODO,
     DOING,
     DONE,
+}
 
-
+enum class ProjectType{
 
 }

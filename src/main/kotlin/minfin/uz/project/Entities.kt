@@ -32,14 +32,14 @@ class User(
 
 @Entity
 class Project(
-    @Column(length = 30) var name: String,
-    @Column(length = 30) var description: String?,
+     var name: String,
+    var description: String,
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
-    var startDate: String,
-    var endDate: String,
+    var startDate: Date,
+    var endDate: Date,
     @OneToOne
     var logo: File,
-    var type: String
+     @Enumerated(EnumType.STRING)  var type: ProjectType
 
 ) : BaseEntity()
 
@@ -48,10 +48,10 @@ class Project(
 class Catalog(
     @ManyToOne
     var catalogTemplate: CatalogTemplate,
-    @Column(length = 30) var description: String?,
+    var description: String,
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
-    var startDate: String,
-    var endDate: String,
+    var startDate: Date,
+    var endDate: Date,
     @ManyToOne
     var project: Project
 
@@ -62,7 +62,7 @@ class Catalog(
 @Entity
 class CatalogTemplate(
     var name: String,
-    @Column(length = 30) var description: String?,
+    var description: String,
     @OneToOne
     var logo: File
 
@@ -73,10 +73,10 @@ class CatalogTemplate(
 @Entity
 class Task(
     var name: String,
-    @Column(length = 30) var description: String?,
+    var description: String,
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
-    var startDate: String,
-    var endDate: String,
+    var startDate: Date,
+    var endDate: Date,
     @ManyToOne
     var catalog: Catalog
 
@@ -85,12 +85,12 @@ class Task(
 @Entity
 class File(
     var name:String,
-    @Column(length = 30) var description: String?,
+    var description: String,
     var hashId:String,
     var mimeType:String,
     var path:String,
-    @ManyToMany
-    var task:MutableList<Task>,
+    @ManyToOne
+    var task:Task,
     var size:String
 
 ):BaseEntity()
