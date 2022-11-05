@@ -1,4 +1,5 @@
 package minfin.uz.project
+
 import org.hibernate.annotations.ColumnDefault
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -8,13 +9,12 @@ import javax.persistence.*
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-class BaseEntity(
+open class BaseEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @CreatedDate @Temporal(TemporalType.TIMESTAMP) var createdDate: Date? = null,
     @LastModifiedDate @Temporal(TemporalType.TIMESTAMP) var modifiedDate: Date? = null,
     @Column(nullable = false) @ColumnDefault(value = "false") var deleted: Boolean = false,
 )
-
 
 
 @Entity(name = "users")
@@ -24,7 +24,7 @@ class User(
     @Column(length = 16) var phoneNumber: String,
     @Column(length = 24, unique = true) var userName: String,
     @Column(length = 64) var password: String,
-    @Column(length=14, unique = true) var pnfl:String,
+    @Column(length = 14, unique = true) var pnfl: String,
     @Enumerated(EnumType.STRING) var role: Role = Role.USER
 
 ) : BaseEntity()
@@ -32,14 +32,14 @@ class User(
 
 @Entity
 class Project(
-     var name: String,
+    var name: String,
     var description: String,
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
     var startDate: Date,
     var endDate: Date,
     @OneToOne
     var logo: File,
-     @Enumerated(EnumType.STRING)  var type: ProjectType
+    @Enumerated(EnumType.STRING) var type: ProjectType
 
 ) : BaseEntity()
 
@@ -80,17 +80,18 @@ class Task(
     @ManyToOne
     var catalog: Catalog
 
-    ) : BaseEntity()
+) : BaseEntity()
 
 @Entity
 class File(
-    var name:String,
+    var name: String,
     var description: String,
-    var hashId:String,
-    var mimeType:String,
-    var path:String,
+    var hashId: String,
+    var mimeType: String,
+    var path: String,
+    var contentType:String,
     @ManyToOne
-    var task:Task,
-    var size:String
+    var task: Task? = null,
+    var size: String
 
-):BaseEntity()
+) : BaseEntity()
