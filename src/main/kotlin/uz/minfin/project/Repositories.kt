@@ -51,3 +51,4 @@ interface TaskRepository:BaseRepository<Task>{
 interface FileRepository:BaseRepository<File>{
     fun findByHashIdAndDeletedFalse(hashId: String):Optional<File>
 }
+

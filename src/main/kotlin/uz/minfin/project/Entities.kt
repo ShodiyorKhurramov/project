@@ -86,13 +86,14 @@ class Task(
 
 @Entity
 class File(
-    var name:String,
+    var name: String,
     var description: String,
-    var hashId: String?= null,
+    var hashId: String,
     var mimeType: String,
     var path: String,
+    var contentType:String,
     @ManyToOne
     var task: Task? = null,
     var size: String
 
-):BaseEntity()
+) : BaseEntity()

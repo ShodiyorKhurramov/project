@@ -1,8 +1,6 @@
 package uz.minfin.project
 
 import org.hashids.Hashids
-import org.springframework.context.annotation.Lazy
-import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartHttpServletRequest
 import java.lang.Math.abs
@@ -46,26 +44,20 @@ interface TaskService{
 }
 
 @Service
-interface FileService {
-    fun fileUpload(request: MultipartHttpServletRequest, dto: FileUploadDto)
+interface FileService{
+    fun fileUpload(request: MultipartHttpServletRequest,dto: FileUploadDto)
 }
 
 
-
-@Service class ProjectServiceImpl(private val projectRepository:ProjectRepository):ProjectService {
+@Service
+class ProjectServiceImpl(private val projectRepository: ProjectRepository) : ProjectService {
     override fun create(dto: ProjectCreateDto): ProjectResponseDto {
         projectRepository.existsByName(dto.name).throwIfFalse { AlreadyReportedException() }
         return dto.run {
             ProjectResponseDto.toDto(
                 projectRepository.save(
                     Project(
-                        name,
-                        description,
-                        status,
-                        startDate,
-                        endDate,
-                        logo,
-                        type
+                        name, description, status, startDate, endDate, logo, type
                     )
                 )
             )
@@ -109,39 +101,6 @@ interface FileService {
     }
 
 
-
-
-    class FileServiceImpl(
-        private val fileRepository: FileRepository
-    ) : FileService {
-        override fun fileUpload(request: MultipartHttpServletRequest, dto: FileUploadDto) {
-            val uploadFolder = dto.projectName + '\\' + dto.catologName + '\\' + dto.task + '\\'
-            if (!java.io.File(uploadFolder).exists()) {
-                java.io.File(uploadFolder).mkdirs()
-            }
-            fileRepository.save(request.fileNames.next().let { getFileExtention(it!!) }.let {
-                File(
-                    request.fileNames.next(),
-                    dto.description,
-                    Hashids(request.fileNames.next(), 8).encode(
-                        abs(
-                            Random(
-                                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-                            ).nextLong()
-                        )
-                    ),
-                    it!!,
-                    uploadFolder,
-                    request.contentType,
-                    dto.task,
-                    request.getFile(request.fileNames.next())!!.size.toString()
-                )
-            })
-            Files.copy(request.getFile(request.fileNames.next())!!.inputStream, Path(uploadFolder))
-        }
-
-    }
-
     @Service
     class CatalogServiceImpl(
         private val catalogRepository: CatalogRepository,
@@ -168,6 +127,7 @@ interface FileService {
                     )
                 )
             }
+        }
             override fun update(id: Long, dto: CatalogUpdateDto): CatalogResponseDto {
                 val catalog = catalogRepository.findById(id)
                 (catalog.isPresent && !catalog.get().deleted).throwIfFalse { ObjectNotFoundException() }
@@ -209,6 +169,7 @@ interface FileService {
 
 
         }
+    }
 
         @Service
         class CatalogTemplateServiceImpl(private val catalogTemplateRepository: CatalogTemplateRepository) :
@@ -238,7 +199,6 @@ interface FileService {
                 }
             }
 
-
             override fun delete(id: Long): CatalogTemplateResponseDto {
                 val catalogTemplate = catalogTemplateRepository.findById(id)
                 (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
@@ -263,10 +223,9 @@ interface FileService {
 
         }
 
-        @Service
-        class TaskServiceImpl(
-            private val taskRepository: TaskRepository,
-            private val catalogRepository: CatalogRepository
+@Service
+class TaskServiceImpl(
+            private val taskRepository: TaskRepository, private val catalogRepository: CatalogRepository
         ) : TaskService {
             override fun create(dto: TaskCreateDto): TaskResponseDto {
 
@@ -277,60 +236,80 @@ interface FileService {
                     TaskResponseDto.toDto(
                         taskRepository.save(
                             Task(
-                                name,
-                                description,
-                                status,
-                                startDate,
-                                endDate,
-                                catalog.get()
+                                name, description, status, startDate, endDate, catalog.get()
                             )
                         )
                     )
                 }
             }
 
-            override fun update(id: Long, dto: TaskUpdateDto): TaskResponseDto {
-                val task = taskRepository.findById(id)
-                (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
-                return task.get().run {
-                    dto.name?.let { name = it }
-                    dto.description?.let { description = it }
-                    dto.status?.let { status = it }
-                    dto.startDate?.let { startDate = it }
-                    dto.endDate?.let { endDate = it }
-                    dto.catalogId?.let {
-                        val c = catalogRepository.findById(it)
-                        (c.isPresent && !c.get().deleted).throwIfFalse { ObjectNotFoundException() }
-                        catalog = c.get()
-                    }
-                    TaskResponseDto.toDto(taskRepository.save(task.get()))
-                }
-            }
-
-
-            override fun delete(id: Long): TaskResponseDto {
-                val task = taskRepository.findById(id)
-                (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
-                task.get().deleted = true
-                return TaskResponseDto.toDto(taskRepository.save(task.get()))
-            }
-
-            override fun getOne(id: Long): TaskResponseDto {
-                val task = taskRepository.findById(id)
-                (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
-                return TaskResponseDto.toDto(task.get())
-
-            }
-
-            override fun getAll(): List<TaskResponseDto> {
-                val tasks = taskRepository.getAllByDeletedFalse()
-                tasks.isEmpty().throwIfFalse { ObjectNotFoundException() }
-                return tasks.map { TaskResponseDto.toDto(it) }
-
-            }
-
+override fun update(id: Long, dto: TaskUpdateDto): TaskResponseDto {
+    val task = taskRepository.findById(id)
+    (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
+    return task.get().run {
+        dto.name?.let { name = it }
+        dto.description?.let { description = it }
+        dto.status?.let { status = it }
+        dto.startDate?.let { startDate = it }
+        dto.endDate?.let { endDate = it }
+        dto.catalogId?.let {
+            val c = catalogRepository.findById(it)
+            (c.isPresent && !c.get().deleted).throwIfFalse { ObjectNotFoundException() }
+            catalog = c.get()
         }
+        TaskResponseDto.toDto(taskRepository.save(task.get()))
     }
+}
+
+
+override fun delete(id: Long): TaskResponseDto {
+        val task = taskRepository.findById(id)
+        (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
+        task.get().deleted = true
+        return TaskResponseDto.toDto(taskRepository.save(task.get()))
+    }
+
+    override fun getOne(id: Long): TaskResponseDto {
+        val task = taskRepository.findById(id)
+        (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
+        return TaskResponseDto.toDto(task.get())
+
+    }
+
+    override fun getAll(): List<TaskResponseDto> {
+        val tasks = taskRepository.getAllByDeletedFalse()
+        tasks.isEmpty().throwIfFalse { ObjectNotFoundException() }
+        return tasks.map { TaskResponseDto.toDto(it) }
+
+    }
+
+}
+
+
+
+class FileServiceImpl(
+    private val fileRepository: FileRepository
+):FileService{
+    override fun fileUpload(request: MultipartHttpServletRequest,dto: FileUploadDto) {
+        val uploadFolder = dto.projectName +'\\'+ dto.catologName +'\\'+dto.task+'\\'
+        if (!java.io.File(uploadFolder).exists()){
+            java.io.File(uploadFolder).mkdirs()
+        }
+        fileRepository.save(request.fileNames.next().let { getFileExtension(it!!) }.let {
+            File(
+                request.fileNames.next(),
+                dto.description,
+                Hashids(request.fileNames.next(),8).encode(abs(Random(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)).nextLong())),
+                it!!,
+                uploadFolder,
+                request.contentType,
+                dto.task,
+                request.getFile(request.fileNames.next())!!.size.toString()
+            )
+        })
+        Files.copy(request.getFile(request.fileNames.next())!!.inputStream, Path(uploadFolder))
+    }
+
 }
 
 
