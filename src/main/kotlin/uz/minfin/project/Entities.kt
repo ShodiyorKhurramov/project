@@ -1,4 +1,5 @@
-package minfin.uz.project
+package uz.minfin.project
+
 import org.hibernate.annotations.ColumnDefault
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -12,19 +13,19 @@ class BaseEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @CreatedDate @Temporal(TemporalType.TIMESTAMP) var createdDate: Date? = null,
     @LastModifiedDate @Temporal(TemporalType.TIMESTAMP) var modifiedDate: Date? = null,
-    @Column(nullable = false) @ColumnDefault(value = "false") var deleted: Boolean = false,
+    @Column(nullable = false) @ColumnDefault(value = "false") var deleted: Boolean = false
 )
-
 
 
 @Entity(name = "users")
 class User(
-    @Column(length = 30) var firstName: String,
-    @Column(length = 30) var lastName: String?,
-    @Column(length = 16) var phoneNumber: String,
-    @Column(length = 24, unique = true) var userName: String,
-    @Column(length = 64) var password: String,
-    @Column(length=14, unique = true) var pnfl:String,
+    @Column(length = 30, nullable = false) var firstName: String,
+    @Column(length = 30, nullable = false) var lastName: String,
+    @Column(length = 16,nullable = false) var phoneNumber: String,
+    @Column(length = 24,unique = true) var userName: String?,
+    @Column(length = 64,nullable = false) var password: String,
+    @Column(length = 14,nullable = false, unique = true) var pnfl: String,
+    @Column(length=15,nullable = false)
     @Enumerated(EnumType.STRING) var role: Role = Role.USER
 
 ) : BaseEntity()
@@ -32,14 +33,15 @@ class User(
 
 @Entity
 class Project(
-     var name: String,
+    @Column( nullable = false) var name: String,
     var description: String,
+    @Column( nullable = false, length = 15)
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
-    var startDate: Date,
-    var endDate: Date,
+    @Column( nullable = false)  var startDate: Date,
+    @Column( nullable = false) var endDate: Date,
     @OneToOne
-    var logo: File,
-     @Enumerated(EnumType.STRING)  var type: ProjectType
+    var logo: File?=null,
+    @Enumerated(EnumType.STRING) var type: ProjectType?=null
 
 ) : BaseEntity()
 
@@ -49,22 +51,21 @@ class Catalog(
     @ManyToOne
     var catalogTemplate: CatalogTemplate,
     var description: String,
+    @Column( nullable = false, length = 15)
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
-    var startDate: Date,
-    var endDate: Date,
+    @Column( nullable = false)var startDate: Date,
+    @Column( nullable = false) var endDate: Date,
     @ManyToOne
     var project: Project
-
-
-) : BaseEntity()
+    ) : BaseEntity()
 
 
 @Entity
 class CatalogTemplate(
-    var name: String,
+    @Column( nullable = false) var name: String,
     var description: String,
     @OneToOne
-    var logo: File
+    var logo: File?=null
 
 
 ) : BaseEntity()
@@ -72,25 +73,27 @@ class CatalogTemplate(
 
 @Entity
 class Task(
-    var name: String,
+    @Column( nullable = false) var name: String,
     var description: String,
+    @Column( nullable = false, length = 15)
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
-    var startDate: Date,
-    var endDate: Date,
+    @Column( nullable = false) var startDate: Date,
+    @Column( nullable = false)  var endDate: Date,
     @ManyToOne
     var catalog: Catalog
 
-    ) : BaseEntity()
+) : BaseEntity()
+
 
 @Entity
 class File(
-    var name:String,
+    var name: String,
     var description: String,
-    var hashId:String,
-    var mimeType:String,
-    var path:String,
+    var hashId: String?= null,
+    var mimeType: String,
+    var path: String,
+    var size: String,
     @ManyToOne
-    var task:Task,
-    var size:String
+    var task: Task? = null,
 
-):BaseEntity()
+    ) : BaseEntity()

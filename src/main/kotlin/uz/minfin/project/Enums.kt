@@ -1,12 +1,12 @@
-package minfin.uz.project
+package uz.minfin.project
 
 
-enum class ErrorCode(val code: Int) {
-    USER_NOT_FOUND(104),
+enum class ErrorType(val code: Int) {
+    BASE_EXCEPTION(100),
+    OBJECT_NOT_FOUND(402),
+    ALREADY_REPORTED(208)
 }
-enum class LocalizationTextKey {
 
-}
 
 
 enum class Role{
@@ -20,5 +20,4 @@ enum class ProjectStatus{
 }
 
 enum class ProjectType{
-
 }

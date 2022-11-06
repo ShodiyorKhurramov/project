@@ -1,4 +1,4 @@
-package minfin.uz.project
+package uz.minfin.project
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.ResourceBundleMessageSource
@@ -11,7 +11,7 @@ class Components {
     @Bean
     fun messageResourceBundleMessageSource(): ResourceBundleMessageSource? {
         val messageSource = ResourceBundleMessageSource()
-        messageSource.setBasename("message")
+        messageSource.setBasename("errors")
         messageSource.setCacheSeconds(3600)
         messageSource.setDefaultLocale(Locale.US)
         messageSource.setDefaultEncoding("UTF-8")
