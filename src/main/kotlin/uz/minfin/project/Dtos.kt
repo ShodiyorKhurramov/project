@@ -1,5 +1,4 @@
 package uz.minfin.project
-
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.util.*
 
@@ -142,5 +141,10 @@ data class TaskResponseDto(
 
 
 
-
+data class FileUploadDto(
+    var description: String,
+    var projectName:String,
+    var catologName: String,
+    var task: Task
+)
 

@@ -1,5 +1,4 @@
 package uz.minfin.project
-
 import org.hibernate.annotations.ColumnDefault
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -15,6 +14,7 @@ class BaseEntity(
     @LastModifiedDate @Temporal(TemporalType.TIMESTAMP) var modifiedDate: Date? = null,
     @Column(nullable = false) @ColumnDefault(value = "false") var deleted: Boolean = false
 )
+
 
 
 @Entity(name = "users")
@@ -82,18 +82,17 @@ class Task(
     @ManyToOne
     var catalog: Catalog
 
-) : BaseEntity()
-
+    ) : BaseEntity()
 
 @Entity
 class File(
-    var name: String,
+    var name:String,
     var description: String,
     var hashId: String?= null,
     var mimeType: String,
     var path: String,
-    var size: String,
     @ManyToOne
     var task: Task? = null,
+    var size: String
 
-    ) : BaseEntity()
+):BaseEntity()

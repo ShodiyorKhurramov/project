@@ -31,6 +31,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // HashId generate
+    implementation("org.hashids:hashids:1.0.3")
 }
 
 tasks.withType<KotlinCompile> {
