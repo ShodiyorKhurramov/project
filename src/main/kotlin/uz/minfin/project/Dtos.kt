@@ -1,11 +1,13 @@
 package uz.minfin.project
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.util.*
-
-
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Size
 
 data class ProjectCreateDto(
+     @field: Size(min = 3, max = 100, message = "ssss",)
      var name: String,
+     @field: NotBlank
      var description: String,
      var status: ProjectStatus=ProjectStatus.TODO,
      var startDate: Date,

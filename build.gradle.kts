@@ -33,6 +33,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // HashId generate
     implementation("org.hashids:hashids:1.0.3")
+    //  validator
+    implementation("org.hibernate:hibernate-validator:8.0.0.Final")
 }
 
 tasks.withType<KotlinCompile> {
