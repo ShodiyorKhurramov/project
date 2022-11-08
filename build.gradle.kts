@@ -15,9 +15,9 @@ allOpen {
     annotation("javax.persistence.MappedSuperclass")
 }
 
-group = "minfin.uz"
+group = "uz.minfin.project"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
@@ -31,9 +31,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
     // HashId generate
     implementation("org.hashids:hashids:1.0.3")
-    //validator
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
+    implementation("org.springframework.boot:spring-boot-starter-security:2.7.5")
+    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("com.auth0:java-jwt:4.2.1")
+    //  validator
     implementation("org.hibernate:hibernate-validator:8.0.0.Final")
 }
 

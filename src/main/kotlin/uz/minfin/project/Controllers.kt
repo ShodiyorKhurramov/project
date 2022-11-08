@@ -1,13 +1,32 @@
 package uz.minfin.project
 
-import org.springframework.web.bind.annotation.*
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import javax.validation.Valid
+
+@RestController
+@RequestMapping("/api/v1/file")
+class FileController(
+    private val fileService: FileServiceImpl
+) {
+    @PostMapping("/upload"/*, consumes = arrayOf(MediaType.MULTIPART_FORM_DATA_VALUE)*/)
+    fun saveFile(@RequestBody dto: FileUploadDto) = fileService.fileUpload(dto)
+}
 
 
 @RestController
 @RequestMapping("api/v1/project")
 class ProjectController(private val projectService: ProjectService){
     @PostMapping("create")
-    fun creates(@RequestBody dto: ProjectCreateDto) = projectService.create(dto)
+    fun creates(@Validated @RequestBody dto: ProjectCreateDto)
+    = projectService.create(dto)
 
     @PutMapping("update/{id}")
     fun update(@PathVariable id: Long, @RequestBody dto: ProjectUpdateDto) = projectService.update(id, dto)
@@ -42,7 +61,7 @@ class CatalogController(private val catalogService: CatalogService){
 }
 
 @RestController
-@RequestMapping("api/v1/catalogTemplate")
+@RequestMapping("api/v1/catalogTemplate ")
 class CatalogTemplateController(private val catalogTemplateService: CatalogTemplateService){
     @PostMapping("create")
     fun creates(@RequestBody dto: CatalogTemplateCreateDto) = catalogTemplateService.create(dto)
@@ -77,4 +96,14 @@ class TaskController(private val taskService: TaskService){
 
     @GetMapping("getAll")
     fun getAll() = taskService.getAll()
+}
+
+@RestController
+    @RequestMapping("/api/v1/auth")
+class AuthController(
+    private val authService: AuthService
+){
+    @PostMapping("login")
+    fun authLogin(@RequestBody dto: LoginDto) = authService.login(dto)
+
 }

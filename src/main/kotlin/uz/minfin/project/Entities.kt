@@ -8,7 +8,7 @@ import javax.persistence.*
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-class BaseEntity(
+open class BaseEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @CreatedDate @Temporal(TemporalType.TIMESTAMP) var createdDate: Date? = null,
     @LastModifiedDate @Temporal(TemporalType.TIMESTAMP) var modifiedDate: Date? = null,
@@ -88,12 +88,11 @@ class Task(
 class File(
     var name: String,
     var description: String,
-    var hashId: String,
+    var hashId: String? = null,
     var mimeType: String,
     var path: String,
-    var contentType:String,
     @ManyToOne
     var task: Task? = null,
-    var size: String
+    var size: Long
 
 ) : BaseEntity()
