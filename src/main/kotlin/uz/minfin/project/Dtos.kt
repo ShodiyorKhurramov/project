@@ -1,7 +1,7 @@
 package uz.minfin.project
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.util.*
-
+import javax.validation.constraints.NotNull
 
 
 data class ProjectCreateDto(
@@ -112,6 +112,7 @@ data class TaskCreateDto(
 
 
 data class TaskUpdateDto(
+
      var name: String?=null,
      var description: String?=null,
      var status: ProjectStatus?= ProjectStatus.TODO,

@@ -52,7 +52,7 @@ interface FileService{
 @Service
 class ProjectServiceImpl(private val projectRepository: ProjectRepository) : ProjectService {
     override fun create(dto: ProjectCreateDto): ProjectResponseDto {
-        projectRepository.existsByName(dto.name).throwIfFalse { AlreadyReportedException() }
+        projectRepository.existsByName(dto.name).throwIfTrue { AlreadyReportedException() }
         return dto.run {
             ProjectResponseDto.toDto(
                 projectRepository.save(
@@ -82,7 +82,7 @@ class ProjectServiceImpl(private val projectRepository: ProjectRepository) : Pro
     override fun delete(id: Long): ProjectResponseDto {
         val project = projectRepository.findById(id)
         (project.isPresent && !project.get().deleted).throwIfFalse { ObjectNotFoundException() }
-        project.get().deleted = true
+        project.get().deleted= true
         return ProjectResponseDto.toDto(projectRepository.save(project.get()))
     }
 
@@ -309,6 +309,8 @@ class FileServiceImpl(
         })
         Files.copy(request.getFile(request.fileNames.next())!!.inputStream, Path(uploadFolder))
     }
+
+
 
 }
 
