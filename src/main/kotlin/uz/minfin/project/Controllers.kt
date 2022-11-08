@@ -12,6 +12,16 @@ import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
 @RestController
+@RequestMapping("/api/v1/file")
+class FileController(
+    private val fileService: FileServiceImpl
+) {
+    @PostMapping("/upload"/*, consumes = arrayOf(MediaType.MULTIPART_FORM_DATA_VALUE)*/)
+    fun saveFile(@RequestBody dto: FileUploadDto) = fileService.fileUpload(dto)
+}
+
+
+@RestController
 @RequestMapping("api/v1/project")
 class ProjectController(private val projectService: ProjectService){
     @PostMapping("create")
@@ -86,4 +96,14 @@ class TaskController(private val taskService: TaskService){
 
     @GetMapping("getAll")
     fun getAll() = taskService.getAll()
+}
+
+@RestController
+    @RequestMapping("/api/v1/auth")
+class AuthController(
+    private val authService: AuthService
+){
+    @PostMapping("login")
+    fun authLogin(@RequestBody dto: LoginDto) = authService.login(dto)
+
 }

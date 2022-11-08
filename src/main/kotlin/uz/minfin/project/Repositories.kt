@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
-import java.util.Optional
+import java.util.*
 import javax.persistence.EntityManager
 
 @NoRepositoryBean
@@ -19,7 +19,6 @@ class BaseRepositoryImpl<T : BaseEntity>(
 
 }
 
-
 interface ProjectRepository:BaseRepository<Project>{
 
     fun existsByName(name: String):Boolean
@@ -30,6 +29,8 @@ interface ProjectRepository:BaseRepository<Project>{
 interface CatalogRepository:BaseRepository<Catalog>{
     fun existsByCatalogTemplateIdAndProjectId(catalogTemplateId: Long, projectId: Long):Boolean
     fun getAllByDeletedFalse():List<Catalog>
+    @Query("select c.* from Catalog as c where c.deleted = false and ", nativeQuery = true)
+    fun getByTaskId(taskId:Long):Optional<Catalog>
 
 }
 
@@ -50,5 +51,8 @@ interface TaskRepository:BaseRepository<Task>{
 
 interface FileRepository:BaseRepository<File>{
     fun findByHashIdAndDeletedFalse(hashId: String):Optional<File>
+    fun findByTaskId(task_id: Long):List<File>
 }
-
+interface UserRepository: BaseRepository<User> {
+    fun findByUserName(username:String):Optional<User>
+}

@@ -1,5 +1,10 @@
 package uz.minfin.project
 import com.fasterxml.jackson.annotation.JsonInclude
+import org.springframework.core.io.Resource
+import org.springframework.http.HttpStatus
+import org.springframework.web.multipart.MultipartFile
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -144,9 +149,38 @@ data class TaskResponseDto(
 
 
 data class FileUploadDto(
+     var description: String,
+     var multipartFile: MultipartFile,
+     var taskId:Long?
+)
+
+data class FileDownloadDto(
+    var name: String,
     var description: String,
-    var projectName:String,
-    var catologName: String,
-    var task: Task
+    var hashId: String
+){
+     companion object {
+          fun toDto(f:File) = f.run {
+               FileDownloadDto(name,description,hashId!!)
+          }
+     }
+}
+
+data class LoginDto(
+    val userName: String,
+    val password: String
+)
+data class SessionDTO(
+    val accessTokenExpiry: Date,
+    val issuedAt: Long,
+    val accessToken:String,
+)
+
+data class AppErrorDto(
+     var timestamp: Timestamp? = Timestamp.valueOf(LocalDateTime.now()),
+     var status: HttpStatus,
+     var error:String? = status.reasonPhrase,
+     var message:String?,
+     var path:String,
 )
 
