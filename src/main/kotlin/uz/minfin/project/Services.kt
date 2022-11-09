@@ -15,10 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.util.*
 import kotlin.io.path.Path
+import kotlin.math.log
 
 
 interface ProjectService{
@@ -27,6 +25,8 @@ interface ProjectService{
     fun delete(id: Long): ProjectResponseDto
     fun getOne(id: Long): ProjectResponseDto
     fun getAll(): List<ProjectResponseDto>
+
+
 }
 
 interface CatalogService{
@@ -63,20 +63,25 @@ interface FileService {
 
 
 @Service
-class ProjectServiceImpl(private val projectRepository: ProjectRepository) : ProjectService {
+class ProjectServiceImpl(
+    private val projectRepository: ProjectRepository,
+    private val fileRepository: FileRepository
+    ) : ProjectService {
     override fun create(dto: ProjectCreateDto): ProjectResponseDto {
         projectRepository.existsByName(dto.name).throwIfTrue { AlreadyReportedException() }
-        return dto.run {
-            ProjectResponseDto.toDto(
-                projectRepository.save(
-                    Project(
-                        name, description, status, startDate, endDate, logo, type
-                    )
-                )
-            )
+        return if(dto.logoHashId==null){
+            dto.run {
+                ProjectResponseDto.toDto(projectRepository.save(Project(name, description, status, startDate, endDate, null,type)))
+            }
+        }else{
+            dto.run {
+                val logo=fileRepository.findByHashIdAndDeletedFalse(logoHashId!!)
+                (logo.isPresent).throwIfFalse { ObjectNotFoundException() }
+                ProjectResponseDto.toDto(projectRepository.save(Project(name, description, status, startDate, endDate,logo.get(),type)))
+            }
         }
-    }
 
+    }
     override fun update(id: Long, dto: ProjectUpdateDto): ProjectResponseDto {
         val project = projectRepository.findById(id)
         (project.isPresent && !project.get().deleted).throwIfFalse { ObjectNotFoundException() }
@@ -90,22 +95,18 @@ class ProjectServiceImpl(private val projectRepository: ProjectRepository) : Pro
             ProjectResponseDto.toDto(projectRepository.save(project.get()))
         }
     }
-
-
     override fun delete(id: Long): ProjectResponseDto {
         val project = projectRepository.findById(id)
         (!(project.isPresent && !project.get().deleted)).throwIfFalse { ObjectNotFoundException() }
         project.get().deleted = true
         return ProjectResponseDto.toDto(projectRepository.save(project.get()))
     }
-
     override fun getOne(id: Long): ProjectResponseDto {
         val project = projectRepository.findById(id)
         (project.isPresent && !project.get().deleted).throwIfFalse { ObjectNotFoundException() }
         return ProjectResponseDto.toDto(project.get())
 
     }
-
     override fun getAll(): List<ProjectResponseDto> {
         val projects = projectRepository.getAllByDeletedFalse()
         (projects.isNotEmpty()).throwIfFalse { ObjectNotFoundException() }
@@ -135,7 +136,6 @@ class ProjectServiceImpl(private val projectRepository: ProjectRepository) : Pro
                 )
             }
         }
-
         override fun update(id: Long, dto: CatalogUpdateDto): CatalogResponseDto {
             val catalog = catalogRepository.findById(id)
             (catalog.isPresent && !catalog.get().deleted).throwIfFalse { ObjectNotFoundException() }
@@ -152,22 +152,18 @@ class ProjectServiceImpl(private val projectRepository: ProjectRepository) : Pro
                 CatalogResponseDto.toDto(catalogRepository.save(catalog.get()))
             }
         }
-
-
         override fun delete(id: Long): CatalogResponseDto {
             val catalog = catalogRepository.findById(id)
             (catalog.isPresent && !catalog.get().deleted).throwIfFalse { ObjectNotFoundException() }
             catalog.get().deleted = true
             return CatalogResponseDto.toDto(catalogRepository.save(catalog.get()))
         }
-
         override fun getOne(id: Long): CatalogResponseDto {
             val catalog = catalogRepository.findById(id)
             (catalog.isPresent && !catalog.get().deleted).throwIfFalse { ObjectNotFoundException() }
             return CatalogResponseDto.toDto(catalog.get())
 
     }
-
         override fun getAll(): List<CatalogResponseDto> {
             val catalogs = catalogRepository.getAllByDeletedFalse()
             catalogs.isEmpty().throwIfFalse { ObjectNotFoundException() }
@@ -177,26 +173,42 @@ class ProjectServiceImpl(private val projectRepository: ProjectRepository) : Pro
 
 
         }
+
     }
 
         @Service
-        class CatalogTemplateServiceImpl(private val catalogTemplateRepository: CatalogTemplateRepository) :
+        class CatalogTemplateServiceImpl(
+            private val catalogTemplateRepository: CatalogTemplateRepository,
+            private val fileRepository: FileRepository) :
             CatalogTemplateService {
             override fun create(dto: CatalogTemplateCreateDto): CatalogTemplateResponseDto {
                 catalogTemplateRepository.existsByName(dto.name).throwIfFalse { AlreadyReportedException() }
-                return dto.run {
-                    CatalogTemplateResponseDto.toDto(
-                        catalogTemplateRepository.save(
-                            CatalogTemplate(
-                                name,
-                                description,
-                                logo
+
+                return if (dto.logoHashId == null) {
+                    dto.run {
+                        CatalogTemplateResponseDto.toDto(
+                            catalogTemplateRepository.save(
+                                CatalogTemplate(
+                                    name, description, null
+                                )
                             )
                         )
-                    )
+                    }
+                } else {
+                    dto.run {
+                        val logo = fileRepository.findByHashIdAndDeletedFalse(logoHashId!!)
+                        (logo.isPresent).throwIfFalse { ObjectNotFoundException() }
+                        CatalogTemplateResponseDto.toDto(
+                            catalogTemplateRepository.save(
+                                CatalogTemplate(
+                                    name, description, logo.get()
+                                )
+                            )
+                        )
+                    }
                 }
-            }
 
+            }
             override fun update(id: Long, dto: CatalogTemplateUpdateDto): CatalogTemplateResponseDto {
                 val catalogTemplate = catalogTemplateRepository.findById(id)
                 (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
@@ -206,21 +218,18 @@ class ProjectServiceImpl(private val projectRepository: ProjectRepository) : Pro
                     CatalogTemplateResponseDto.toDto(catalogTemplateRepository.save(catalogTemplate.get()))
                 }
             }
-
             override fun delete(id: Long): CatalogTemplateResponseDto {
                 val catalogTemplate = catalogTemplateRepository.findById(id)
                 (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
                 catalogTemplate.get().deleted = true
                 return CatalogTemplateResponseDto.toDto(catalogTemplateRepository.save(catalogTemplate.get()))
             }
-
             override fun getOne(id: Long): CatalogTemplateResponseDto {
                 val catalogTemplate = catalogTemplateRepository.findById(id)
                 (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
                 return CatalogTemplateResponseDto.toDto(catalogTemplate.get())
 
             }
-
             override fun getAll(): List<CatalogTemplateResponseDto> {
                 val catalogTemplates = catalogTemplateRepository.getAllByDeletedFalse()
                 catalogTemplates.isEmpty().throwIfFalse { ObjectNotFoundException() }
@@ -235,55 +244,50 @@ class ProjectServiceImpl(private val projectRepository: ProjectRepository) : Pro
 class TaskServiceImpl(
             private val taskRepository: TaskRepository, private val catalogRepository: CatalogRepository
         ) : TaskService {
-            override fun create(dto: TaskCreateDto): TaskResponseDto {
+    override fun create(dto: TaskCreateDto): TaskResponseDto {
 
-                taskRepository.existsByNameAndCatalogId(dto.name, dto.catalogId)
-                    .throwIfFalse { AlreadyReportedException() }
-                val catalog = catalogRepository.findById(dto.catalogId)
-                return dto.run {
-                    TaskResponseDto.toDto(
-                        taskRepository.save(
-                            Task(
-                                name, description, status, startDate, endDate, catalog.get()
-                            )
-                        )
+        taskRepository.existsByNameAndCatalogId(dto.name, dto.catalogId)
+            .throwIfFalse { AlreadyReportedException() }
+        val catalog = catalogRepository.findById(dto.catalogId)
+        return dto.run {
+            TaskResponseDto.toDto(
+                taskRepository.save(
+                    Task(
+                        name, description, status, startDate, endDate, catalog.get()
                     )
-                }
-            }
-
-override fun update(id: Long, dto: TaskUpdateDto): TaskResponseDto {
-    val task = taskRepository.findById(id)
-    (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
-    return task.get().run {
-        dto.name?.let { name = it }
-        dto.description?.let { description = it }
-        dto.status?.let { status = it }
-        dto.startDate?.let { startDate = it }
-        dto.endDate?.let { endDate = it }
-        dto.catalogId?.let {
-            val c = catalogRepository.findById(it)
-            (c.isPresent && !c.get().deleted).throwIfFalse { ObjectNotFoundException() }
-            catalog = c.get()
+                )
+            )
         }
-        TaskResponseDto.toDto(taskRepository.save(task.get()))
     }
-}
-
-
-override fun delete(id: Long): TaskResponseDto {
+    override fun update(id: Long, dto: TaskUpdateDto): TaskResponseDto {
+        val task = taskRepository.findById(id)
+        (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
+        return task.get().run {
+            dto.name?.let { name = it }
+            dto.description?.let { description = it }
+            dto.status?.let { status = it }
+            dto.startDate?.let { startDate = it }
+            dto.endDate?.let { endDate = it }
+            dto.catalogId?.let {
+                val c = catalogRepository.findById(it)
+                (c.isPresent && !c.get().deleted).throwIfFalse { ObjectNotFoundException() }
+                catalog = c.get()
+            }
+            TaskResponseDto.toDto(taskRepository.save(task.get()))
+        }
+    }
+    override fun delete(id: Long): TaskResponseDto {
         val task = taskRepository.findById(id)
         (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
         task.get().deleted = true
         return TaskResponseDto.toDto(taskRepository.save(task.get()))
     }
-
     override fun getOne(id: Long): TaskResponseDto {
         val task = taskRepository.findById(id)
         (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
         return TaskResponseDto.toDto(task.get())
 
     }
-
     override fun getAll(): List<TaskResponseDto> {
         val tasks = taskRepository.getAllByDeletedFalse()
         tasks.isEmpty().throwIfFalse { ObjectNotFoundException() }
@@ -306,7 +310,7 @@ class AuthService(
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails {
         var optionalUser = userRepository.findByUserName(username)
-        if (optionalUser.isEmpty) {
+        if (!optionalUser.isPresent) {
             throw UsernameNotFoundException("user not found with username : $username")
         } else {
             val user = optionalUser.get()
@@ -327,7 +331,7 @@ class AuthService(
 
 }
 
-class UserServiceImpl() : UserService {
+class UserServiceImpl : UserService {
     override fun create() {
         TODO("Not yet implemented")
     }
@@ -371,20 +375,16 @@ class FileServiceImpl(
             return file.hashId;
         }
     }
-
-
     override fun getFile(hashId: String): FileDownloadDto {
         val file = fileRepository.findByHashIdAndDeletedFalse(hashId)
-        file.isPresent().throwIfFalse { ObjectNotFoundException() }
+        file.isPresent.throwIfFalse { ObjectNotFoundException() }
         return FileDownloadDto.toDto(file.get())
     }
-
     override fun get(hashId: String):FileUrlResource  {
         val file = fileRepository.findByHashIdAndDeletedFalse(hashId)
         file.isPresent.throwIfFalse { ObjectNotFoundException() }
         return FileUrlResource(file.get().path)
     }
-
     override fun getTaskId(id: Long): List<FileDownloadDto> {
         val list = fileRepository.findByTaskId(id)
         list.isEmpty().throwIfTrue { ObjectNotFoundException() }

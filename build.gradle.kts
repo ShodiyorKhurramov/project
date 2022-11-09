@@ -39,7 +39,7 @@ dependencies {
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
     implementation("com.auth0:java-jwt:4.2.1")
     //  validator
-    implementation("org.hibernate:hibernate-validator:8.0.0.Final")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.7.5")
 }
 
 tasks.withType<KotlinCompile> {

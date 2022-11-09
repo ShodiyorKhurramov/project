@@ -29,8 +29,7 @@ interface ProjectRepository:BaseRepository<Project>{
 interface CatalogRepository:BaseRepository<Catalog>{
     fun existsByCatalogTemplateIdAndProjectId(catalogTemplateId: Long, projectId: Long):Boolean
     fun getAllByDeletedFalse():List<Catalog>
-    @Query("select c.* from Catalog as c where c.deleted = false and ", nativeQuery = true)
-    fun getByTaskId(taskId:Long):Optional<Catalog>
+
 
 }
 
@@ -52,6 +51,7 @@ interface TaskRepository:BaseRepository<Task>{
 interface FileRepository:BaseRepository<File>{
     fun findByHashIdAndDeletedFalse(hashId: String):Optional<File>
     fun findByTaskId(task_id: Long):List<File>
+    fun existsByHashId(hashId: String):Boolean
 }
 interface UserRepository: BaseRepository<User> {
     fun findByUserName(username:String):Optional<User>

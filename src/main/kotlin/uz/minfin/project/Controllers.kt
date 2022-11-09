@@ -1,6 +1,5 @@
 package uz.minfin.project
 
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -25,7 +24,7 @@ class FileController(
 @RequestMapping("api/v1/project")
 class ProjectController(private val projectService: ProjectService){
     @PostMapping("create")
-    fun creates(@Validated @RequestBody dto: ProjectCreateDto)
+    fun creates(@Valid @RequestBody dto: ProjectCreateDto)
     = projectService.create(dto)
 
     @PutMapping("update/{id}")

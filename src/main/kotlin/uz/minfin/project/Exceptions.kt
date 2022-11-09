@@ -32,5 +32,6 @@ class AlreadyReportedException() : ProjectException() {
 }
 
 
+data class ValidationErrorMessage(val code: Int, val message: String, val fields: Map<String, Any?>)
 
 
