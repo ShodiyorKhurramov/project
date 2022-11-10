@@ -1,5 +1,6 @@
 package uz.minfin.project
 import com.fasterxml.jackson.annotation.JsonInclude
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.MultipartFile
 import java.sql.Timestamp
@@ -125,9 +126,10 @@ data class CatalogTemplateResponseDto(
 }
 
 
-
 data class TaskCreateDto(
+     @get:NotBlank
      var name: String,
+     @get:NotBlank
      var description: String,
      var status: ProjectStatus = ProjectStatus.TODO,
      var startDate: Date,
@@ -137,13 +139,14 @@ data class TaskCreateDto(
 
 
 data class TaskUpdateDto(
+     @get:NotBlank
      var name: String?=null,
+     @get:NotBlank
      var description: String?=null,
      var status: ProjectStatus?= ProjectStatus.TODO,
      var startDate: Date?=null,
      var endDate: Date?=null,
      var catalogId: Long?=null
-
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -29,8 +29,6 @@ interface ProjectRepository:BaseRepository<Project>{
 interface CatalogRepository:BaseRepository<Catalog>{
     fun existsByCatalogTemplateIdAndProjectId(catalogTemplateId: Long, projectId: Long):Boolean
     fun getAllByDeletedFalse():List<Catalog>
-
-
 }
 
 interface CatalogTemplateRepository:BaseRepository<CatalogTemplate>{

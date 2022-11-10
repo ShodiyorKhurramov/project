@@ -9,7 +9,7 @@ abstract class ProjectException(message: String? = null) : RuntimeException(mess
     abstract fun errorType(): ErrorType
 
     fun toBaseMessage(messageSource: ResourceBundleMessageSource): ResponseEntity<BaseMessage> {
-        return ResponseEntity.ok().body(
+        return ResponseEntity.badRequest().body(
             BaseMessage(
                 errorType().code, messageSource.getMessage(
                     errorType().name, null, LocaleContextHolder.getLocale()

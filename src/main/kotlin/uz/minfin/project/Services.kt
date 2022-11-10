@@ -6,17 +6,21 @@ import org.apache.http.entity.InputStreamEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.hashids.Hashids
 import org.springframework.core.io.FileUrlResource
+import org.springframework.core.io.buffer.DataBufferUtils.matcher
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import org.webjars.NotFoundException
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
+import java.util.*
 import kotlin.io.path.Path
-import kotlin.math.log
 
 
 interface ProjectService{
@@ -46,9 +50,9 @@ interface CatalogTemplateService{
 }
 
 interface TaskService{
-    fun create(dto: TaskCreateDto): TaskResponseDto
-    fun update(id: Long, dto: TaskUpdateDto): TaskResponseDto
-    fun delete(id: Long): TaskResponseDto
+    fun create(dto: TaskCreateDto): BaseMessage
+    fun update(id: Long, dto: TaskUpdateDto): BaseMessage
+    fun delete(id: Long): BaseMessage
     fun getOne(id: Long): TaskResponseDto
     fun getAll(): List<TaskResponseDto>
 }
@@ -66,7 +70,7 @@ interface FileService {
 class ProjectServiceImpl(
     private val projectRepository: ProjectRepository,
     private val fileRepository: FileRepository
-    ) : ProjectService {
+) : ProjectService {
     override fun create(dto: ProjectCreateDto): ProjectResponseDto {
         projectRepository.existsByName(dto.name).throwIfTrue { AlreadyReportedException() }
         return if(dto.logoHashId==null){
@@ -163,93 +167,94 @@ class ProjectServiceImpl(
             (catalog.isPresent && !catalog.get().deleted).throwIfFalse { ObjectNotFoundException() }
             return CatalogResponseDto.toDto(catalog.get())
 
-    }
+        }
         override fun getAll(): List<CatalogResponseDto> {
             val catalogs = catalogRepository.getAllByDeletedFalse()
             catalogs.isEmpty().throwIfFalse { ObjectNotFoundException() }
             return catalogs.map { CatalogResponseDto.toDto(it) }
 
-            }
-
-
         }
+
 
     }
 
-        @Service
-        class CatalogTemplateServiceImpl(
-            private val catalogTemplateRepository: CatalogTemplateRepository,
-            private val fileRepository: FileRepository) :
-            CatalogTemplateService {
-            override fun create(dto: CatalogTemplateCreateDto): CatalogTemplateResponseDto {
-                catalogTemplateRepository.existsByName(dto.name).throwIfFalse { AlreadyReportedException() }
+}
 
-                return if (dto.logoHashId == null) {
-                    dto.run {
-                        CatalogTemplateResponseDto.toDto(
-                            catalogTemplateRepository.save(
-                                CatalogTemplate(
-                                    name, description, null
-                                )
-                            )
+@Service
+class CatalogTemplateServiceImpl(
+    private val catalogTemplateRepository: CatalogTemplateRepository,
+    private val fileRepository: FileRepository) :
+    CatalogTemplateService {
+    override fun create(dto: CatalogTemplateCreateDto): CatalogTemplateResponseDto {
+        catalogTemplateRepository.existsByName(dto.name).throwIfFalse { AlreadyReportedException() }
+
+        return if (dto.logoHashId == null) {
+            dto.run {
+                CatalogTemplateResponseDto.toDto(
+                    catalogTemplateRepository.save(
+                        CatalogTemplate(
+                            name, description, null
                         )
-                    }
-                } else {
-                    dto.run {
-                        val logo = fileRepository.findByHashIdAndDeletedFalse(logoHashId!!)
-                        (logo.isPresent).throwIfFalse { ObjectNotFoundException() }
-                        CatalogTemplateResponseDto.toDto(
-                            catalogTemplateRepository.save(
-                                CatalogTemplate(
-                                    name, description, logo.get()
-                                )
-                            )
+                    )
+                )
+            }
+        } else {
+            dto.run {
+                val logo = fileRepository.findByHashIdAndDeletedFalse(logoHashId!!)
+                (logo.isPresent).throwIfFalse { ObjectNotFoundException() }
+                CatalogTemplateResponseDto.toDto(
+                    catalogTemplateRepository.save(
+                        CatalogTemplate(
+                            name, description, logo.get()
                         )
-                    }
-                }
-
+                    )
+                )
             }
-            override fun update(id: Long, dto: CatalogTemplateUpdateDto): CatalogTemplateResponseDto {
-                val catalogTemplate = catalogTemplateRepository.findById(id)
-                (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
-                return catalogTemplate.get().run {
-                    dto.name?.let { name = it }
-                    dto.description?.let { description = it }
-                    CatalogTemplateResponseDto.toDto(catalogTemplateRepository.save(catalogTemplate.get()))
-                }
-            }
-            override fun delete(id: Long): CatalogTemplateResponseDto {
-                val catalogTemplate = catalogTemplateRepository.findById(id)
-                (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
-                catalogTemplate.get().deleted = true
-                return CatalogTemplateResponseDto.toDto(catalogTemplateRepository.save(catalogTemplate.get()))
-            }
-            override fun getOne(id: Long): CatalogTemplateResponseDto {
-                val catalogTemplate = catalogTemplateRepository.findById(id)
-                (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
-                return CatalogTemplateResponseDto.toDto(catalogTemplate.get())
-
-            }
-            override fun getAll(): List<CatalogTemplateResponseDto> {
-                val catalogTemplates = catalogTemplateRepository.getAllByDeletedFalse()
-                catalogTemplates.isEmpty().throwIfFalse { ObjectNotFoundException() }
-                return catalogTemplates.map { CatalogTemplateResponseDto.toDto(it) }
-
-            }
-
-
         }
+
+    }
+    override fun update(id: Long, dto: CatalogTemplateUpdateDto): CatalogTemplateResponseDto {
+        val catalogTemplate = catalogTemplateRepository.findById(id)
+        (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
+        return catalogTemplate.get().run {
+            dto.name?.let { name = it }
+            dto.description?.let { description = it }
+            CatalogTemplateResponseDto.toDto(catalogTemplateRepository.save(catalogTemplate.get()))
+        }
+    }
+    override fun delete(id: Long): CatalogTemplateResponseDto {
+        val catalogTemplate = catalogTemplateRepository.findById(id)
+        (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
+        catalogTemplate.get().deleted = true
+        return CatalogTemplateResponseDto.toDto(catalogTemplateRepository.save(catalogTemplate.get()))
+    }
+    override fun getOne(id: Long): CatalogTemplateResponseDto {
+        val catalogTemplate = catalogTemplateRepository.findById(id)
+        (catalogTemplate.isPresent && !catalogTemplate.get().deleted).throwIfFalse { ObjectNotFoundException() }
+        return CatalogTemplateResponseDto.toDto(catalogTemplate.get())
+
+    }
+    override fun getAll(): List<CatalogTemplateResponseDto> {
+        val catalogTemplates = catalogTemplateRepository.getAllByDeletedFalse()
+        catalogTemplates.isEmpty().throwIfFalse { ObjectNotFoundException() }
+        return catalogTemplates.map { CatalogTemplateResponseDto.toDto(it) }
+
+    }
+
+}
 
 @Service
 class TaskServiceImpl(
-            private val taskRepository: TaskRepository, private val catalogRepository: CatalogRepository
-        ) : TaskService {
-    override fun create(dto: TaskCreateDto): TaskResponseDto {
-
+    private val taskRepository: TaskRepository, private val catalogRepository: CatalogRepository
+) : TaskService {
+    override fun create(dto: TaskCreateDto): BaseMessage{
         taskRepository.existsByNameAndCatalogId(dto.name, dto.catalogId)
-            .throwIfFalse { AlreadyReportedException() }
+            .throwIfTrue { AlreadyReportedException() }
         val catalog = catalogRepository.findById(dto.catalogId)
-        return dto.run {
+        catalog.isPresent.throwIfFalse {
+            return@throwIfFalse ObjectNotFoundException()
+        }
+        dto.run {
             TaskResponseDto.toDto(
                 taskRepository.save(
                     Task(
@@ -258,11 +263,12 @@ class TaskServiceImpl(
                 )
             )
         }
+        return BaseMessage.OK
     }
-    override fun update(id: Long, dto: TaskUpdateDto): TaskResponseDto {
+    override fun update(id: Long, dto: TaskUpdateDto): BaseMessage {
         val task = taskRepository.findById(id)
         (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
-        return task.get().run {
+        task.get().run {
             dto.name?.let { name = it }
             dto.description?.let { description = it }
             dto.status?.let { status = it }
@@ -275,12 +281,14 @@ class TaskServiceImpl(
             }
             TaskResponseDto.toDto(taskRepository.save(task.get()))
         }
+        return BaseMessage.OK
     }
-    override fun delete(id: Long): TaskResponseDto {
+    override fun delete(id: Long): BaseMessage {
         val task = taskRepository.findById(id)
         (task.isPresent && !task.get().deleted).throwIfFalse { ObjectNotFoundException() }
         task.get().deleted = true
-        return TaskResponseDto.toDto(taskRepository.save(task.get()))
+        TaskResponseDto.toDto(taskRepository.save(task.get()))
+        return BaseMessage.DELETE
     }
     override fun getOne(id: Long): TaskResponseDto {
         val task = taskRepository.findById(id)
@@ -290,7 +298,7 @@ class TaskServiceImpl(
     }
     override fun getAll(): List<TaskResponseDto> {
         val tasks = taskRepository.getAllByDeletedFalse()
-        tasks.isEmpty().throwIfFalse { ObjectNotFoundException() }
+        tasks.isEmpty().throwIfTrue { ObjectNotFoundException() }
         return tasks.map { TaskResponseDto.toDto(it) }
 
     }
@@ -391,8 +399,8 @@ class FileServiceImpl(
         return list.map { FileDownloadDto.toDto(it) }
     }
 
-
 }
+
 
 
 

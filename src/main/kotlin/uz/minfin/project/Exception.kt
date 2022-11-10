@@ -26,17 +26,17 @@ class GlobalExceptionHandler(private val messageSource: ResourceBundleMessageSou
         request: WebRequest
     ): ResponseEntity<Any> {
 
-            val body: MutableMap<String, Any> = LinkedHashMap()
-            body["timestamp"] = Date()
-            body["status"] = status.value()
-            val errors: MutableList<String?> = LinkedList()
-            ex.bindingResult.fieldErrors.forEach(Consumer { error: FieldError ->
-                errors.add(
-                    error.defaultMessage
-                )
-            })
-            body["errors"] = errors
-            return ResponseEntity(body, headers, status)
+        val body: MutableMap<String, Any> = LinkedHashMap()
+        body["timestamp"] = Date()
+        body["status"] = status.value()
+        val errors: MutableList<String?> = LinkedList()
+        ex.bindingResult.fieldErrors.forEach(Consumer { error: FieldError ->
+            errors.add(
+                error.defaultMessage
+            )
+        })
+        body["errors"] = errors
+        return ResponseEntity(body, headers, status)
     }
 
 
