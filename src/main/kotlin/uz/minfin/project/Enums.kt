@@ -20,6 +20,7 @@ enum class ProjectStatus{
 }
 
 enum class ProjectType{
+    SIMPLE
 }
 
 enum class ErrorCode(val code: Int){

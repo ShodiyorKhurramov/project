@@ -6,13 +6,17 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Size
+
+
+
+
+
 
 
 data class ProjectCreateDto(
-     @get:Size(min = 3, max = 100)
+
+     @get:NotBlank
      var name: String,
-     @NotBlank
      var description: String,
      var status: ProjectStatus=ProjectStatus.TODO,
      var startDate: Date,
@@ -20,8 +24,6 @@ data class ProjectCreateDto(
      var logoHashId: String?=null,
      var type: ProjectType?=null
 )
-
-
 data class ProjectUpdateDto(
      var name: String?=null,
      var description: String?=null,
@@ -32,7 +34,6 @@ data class ProjectUpdateDto(
      var type: ProjectType?=null
 
 )
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ProjectResponseDto(
      var id:Long,
@@ -68,8 +69,6 @@ data class CatalogCreateDto(
      var endDate: Date,
      var projectId: Long
      )
-
-
 data class CatalogUpdateDto(
      var catalogTemplateId: Long?=null,
      var description: String?=null,
@@ -80,7 +79,6 @@ data class CatalogUpdateDto(
 
 
 )
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CatalogResponseDto(
      var id: Long,
@@ -100,7 +98,9 @@ data class CatalogResponseDto(
 }
 
 
-data class CatalogTemplateCreateDto(var name: String, var description: String, var logoHashId: String?=null)
+data class CatalogTemplateCreateDto(
+     @get:NotBlank var name: String, var description: String, var logoHashId: String? = null
+)
 data class CatalogTemplateUpdateDto(var name: String? = null, var description: String? = null, var logoHashId: String?=null)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -134,8 +134,6 @@ data class TaskCreateDto(
      var endDate: Date,
      var catalogId: Long
 )
-
-
 data class TaskUpdateDto(
      var name: String?=null,
      var description: String?=null,
