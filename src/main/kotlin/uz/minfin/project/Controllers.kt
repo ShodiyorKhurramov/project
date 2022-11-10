@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/file")
@@ -24,8 +25,7 @@ class FileController(
 @RequestMapping("api/v1/project")
 class ProjectController(private val projectService: ProjectService){
     @PostMapping("create")
-    fun creates(@Validated @RequestBody dto: ProjectCreateDto)
-    = projectService.create(dto)
+    fun creates(@Valid @RequestBody dto: ProjectCreateDto) = projectService.create(dto)
 
     @PutMapping("update/{id}")
     fun update(@PathVariable id: Long, @RequestBody dto: ProjectUpdateDto) = projectService.update(id, dto)
@@ -63,7 +63,7 @@ class CatalogController(private val catalogService: CatalogService){
 @RequestMapping("api/v1/catalogTemplate ")
 class CatalogTemplateController(private val catalogTemplateService: CatalogTemplateService){
     @PostMapping("create")
-    fun creates(@RequestBody dto: CatalogTemplateCreateDto) = catalogTemplateService.create(dto)
+    fun creates(@Valid @RequestBody dto: CatalogTemplateCreateDto) = catalogTemplateService.create(dto)
 
     @PutMapping("update/{id}")
     fun update(@PathVariable id: Long, @RequestBody dto: CatalogTemplateUpdateDto) = catalogTemplateService.update(id, dto)
