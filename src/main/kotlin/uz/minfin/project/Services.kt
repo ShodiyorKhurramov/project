@@ -182,7 +182,8 @@ class CatalogServiceImpl(
 class CatalogTemplateServiceImpl(
             private val catalogTemplateRepository: CatalogTemplateRepository,
             private val fileRepository: FileRepository
-            ) : CatalogTemplateService {
+            ) : CatalogTemplateService
+{
             override fun create(dto: CatalogTemplateCreateDto): BaseMessage {
                 catalogTemplateRepository.existsByName(dto.name).throwIfTrue { AlreadyReportedException() }
                 return if (dto.logoHashId == null) {
