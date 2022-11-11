@@ -67,8 +67,6 @@ class CatalogTemplate(
     var description: String,
     @OneToOne
     var logo: File?=null
-
-
 ) : BaseEntity()
 
 
