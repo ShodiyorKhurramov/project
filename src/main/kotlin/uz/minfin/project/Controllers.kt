@@ -82,7 +82,7 @@ class CatalogTemplateController(private val catalogTemplateService: CatalogTempl
 @RequestMapping("api/v1/task")
 class TaskController(private val taskService: TaskService){
     @PostMapping("create")
-    fun creates(@Validated @RequestBody dto: TaskCreateDto) = taskService.create(dto)
+    fun creates(@Valid @RequestBody dto: TaskCreateDto) = taskService.create(dto)
 
     @PutMapping("update/{id}")
     fun update(@PathVariable id: Long,@Validated @RequestBody dto: TaskUpdateDto) = taskService.update(id, dto)
