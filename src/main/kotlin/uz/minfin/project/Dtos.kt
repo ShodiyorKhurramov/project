@@ -137,9 +137,8 @@ data class TaskCreateDto(
      var catalogId: Long
 )
 data class TaskUpdateDto(
-     @get:NotBlank
      var name: String?=null,
-     @get:NotBlank
+
      var description: String?=null,
      var status: ProjectStatus?= ProjectStatus.TODO,
      var startDate: Date?=null,

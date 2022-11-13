@@ -2,7 +2,6 @@ package uz.minfin.project
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
-import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
@@ -22,18 +21,21 @@ class BaseRepositoryImpl<T : BaseEntity>(
 interface ProjectRepository:BaseRepository<Project>{
 
     fun existsByName(name: String):Boolean
+    fun findByIdAndDeletedFalse(id: Long):Optional<Project>
     fun getAllByDeletedFalse():List<Project>
 
 }
 
 interface CatalogRepository:BaseRepository<Catalog>{
     fun existsByCatalogTemplateIdAndProjectId(catalogTemplateId: Long, projectId: Long):Boolean
+    fun findByIdAndDeletedFalse(id: Long):Optional<Catalog>
     fun getAllByDeletedFalse():List<Catalog>
 }
 
 interface CatalogTemplateRepository:BaseRepository<CatalogTemplate>{
 
     fun existsByName(name: String):Boolean
+    fun findByIdAndDeletedFalse(id: Long):Optional<CatalogTemplate>
     fun getAllByDeletedFalse():List<CatalogTemplate>
 
 }
@@ -41,7 +43,7 @@ interface CatalogTemplateRepository:BaseRepository<CatalogTemplate>{
 interface TaskRepository:BaseRepository<Task>{
 
     fun existsByNameAndCatalogId(name: String, catalogId: Long):Boolean
-
+    fun findByIdAndDeletedFalse(id: Long):Optional<Task>
     fun getAllByDeletedFalse():List<Task>
 
 }

@@ -4,6 +4,11 @@ package uz.minfin.project
 enum class ErrorType(val code: Int) {
     BASE_EXCEPTION(100),
     OBJECT_NOT_FOUND(404),
+    PROJECT_NOT_FOUND(404),
+    CATALOG_NOT_FOUND(404),
+    CATALOG_TEMPLATE_NOT_FOUND(404),
+    TASK_NOT_FOUND(404),
+    FILE_NOT_FOUND(404),
     ALREADY_REPORTED(208)
 }
 

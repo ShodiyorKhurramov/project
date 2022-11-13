@@ -25,11 +25,39 @@ class BaseException() : ProjectException() {
 
 class ObjectNotFoundException() : ProjectException() {
     override fun errorType() = ErrorType.OBJECT_NOT_FOUND
+
+}
+
+class ProjectNotFoundException() : ProjectException() {
+    override fun errorType() = ErrorType.PROJECT_NOT_FOUND
+
+}
+
+class CatalogNotFoundException() : ProjectException() {
+    override fun errorType() = ErrorType.CATALOG_NOT_FOUND
+
+}
+
+class CatalogTemplateNotFoundException() : ProjectException() {
+    override fun errorType() = ErrorType.CATALOG_TEMPLATE_NOT_FOUND
+
+}
+
+class TaskNotFoundException() : ProjectException() {
+    override fun errorType() = ErrorType.TASK_NOT_FOUND
+
+}
+
+class FileNotFoundException() : ProjectException() {
+    override fun errorType() = ErrorType.FILE_NOT_FOUND
+
 }
 
 class AlreadyReportedException() : ProjectException() {
     override fun errorType() = ErrorType.ALREADY_REPORTED
 }
+
+
 
 
 data class ValidationErrorMessage(val code: Int, val message: String, val fields: Map<String, Any?>)
