@@ -1,7 +1,11 @@
 package uz.minfin.project
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
+
 
 @RestController
 @RequestMapping("/api/v1/file")
@@ -30,6 +34,18 @@ class ProjectController(private val projectService: ProjectService){
 
     @GetMapping("getAll")
     fun getAll() = projectService.getAll()
+
+    @GetMapping("getToDoProjects")
+    fun getToDoProjects() = projectService.getToDoProjects()
+
+    @GetMapping("getDoingProjects")
+    fun getDoingProjects() = projectService.getDoingProjects()
+
+    @GetMapping("getDoneProjects")
+    fun getDoneProjects() = projectService.getDoneProjects()
+
+    @GetMapping("search/{name}")
+    fun searchProject(@PathVariable name: String,page:Int,size:Int)= projectService.searchProject(name, PageRequest.of(page,size))
 }
 
 @RestController
@@ -49,6 +65,7 @@ class CatalogController(private val catalogService: CatalogService){
 
     @GetMapping("getAll")
     fun getAll() = catalogService.getAll()
+
 }
 
 @RestController

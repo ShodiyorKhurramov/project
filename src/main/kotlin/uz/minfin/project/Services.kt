@@ -6,6 +6,7 @@ import org.apache.http.entity.InputStreamEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.hashids.Hashids
 import org.springframework.core.io.FileUrlResource
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -24,6 +26,10 @@ interface ProjectService{
     fun delete(id: Long): BaseMessage
     fun getOne(id: Long): ProjectResponseDto
     fun getAll(): List<ProjectResponseDto>
+    fun getToDoProjects(): List<ProjectResponseDto>
+    fun getDoingProjects(): List<ProjectResponseDto>
+    fun getDoneProjects(): List<ProjectResponseDto>
+    fun searchProject(name:String,page: Pageable): List<ProjectResponseDto>
 
 
 }
@@ -115,12 +121,15 @@ class ProjectServiceImpl(
         return ProjectResponseDto.toDto(project.get())
 
     }
-    override fun getAll(): List<ProjectResponseDto> {
-        val projects = projectRepository.getAllByDeletedFalse()
-        (projects.isNotEmpty()).throwIfFalse { ProjectNotFoundException() }
-        return projects.map { ProjectResponseDto.toDto(it) }
-    }
-    }
+
+
+    override fun getAll()= projectRepository.getAllByDeletedFalse().map { ProjectResponseDto.toDto(it) }
+    override fun getToDoProjects()=projectRepository.getAllByDeletedFalseAndStatusTodo().map { ProjectResponseDto.toDto(it) }
+    override fun getDoingProjects()=projectRepository.getAllByDeletedFalseAndStatusDoing().map { ProjectResponseDto.toDto(it) }
+    override fun getDoneProjects()=projectRepository.getAllByDeletedFalseAndStatusDone().map { ProjectResponseDto.toDto(it) }
+    override fun searchProject(name: String,page: Pageable)= projectRepository.searchProject(name,page).map { ProjectResponseDto.toDto(it) }
+
+}
 @Service
 class CatalogServiceImpl(
     private val catalogRepository: CatalogRepository,
@@ -174,12 +183,9 @@ class CatalogServiceImpl(
         return CatalogResponseDto.toDto(catalog.get())
 
     }
-    override fun getAll(): List<CatalogResponseDto> {
-        val catalogs = catalogRepository.getAllByDeletedFalse()
-        catalogs.isEmpty().throwIfTrue { CatalogTemplateNotFoundException() }
-        return catalogs.map { CatalogResponseDto.toDto(it) }
+    override fun getAll() = catalogRepository.getAllByDeletedFalse().map { CatalogResponseDto.toDto(it) }
 
-    }
+
 
 
 }
@@ -233,12 +239,9 @@ class CatalogTemplateServiceImpl(
                 return CatalogTemplateResponseDto.toDto(catalogTemplate.get())
 
             }
-            override fun getAll(): List<CatalogTemplateResponseDto> {
-                val catalogTemplates = catalogTemplateRepository.getAllByDeletedFalse()
-                catalogTemplates.isEmpty().throwIfFalse { CatalogTemplateNotFoundException() }
-                return catalogTemplates.map { CatalogTemplateResponseDto.toDto(it) }
+            override fun getAll()= catalogTemplateRepository.getAllByDeletedFalse().map { CatalogTemplateResponseDto.toDto(it) }
 
-    }
+
 
 }
 @Service
@@ -284,12 +287,9 @@ class TaskServiceImpl(
         return TaskResponseDto.toDto(task.get())
 
     }
-    override fun getAll(): List<TaskResponseDto> {
-        val tasks = taskRepository.getAllByDeletedFalse()
-        tasks.isEmpty().throwIfTrue { TaskNotFoundException() }
-        return tasks.map { TaskResponseDto.toDto(it) }
+    override fun getAll() = taskRepository.getAllByDeletedFalse().map { TaskResponseDto.toDto(it) }
 
-    }
+
 
 }
 
@@ -298,7 +298,6 @@ class TaskServiceImpl(
 interface UserService {
     fun create()
 }
-
 @Service
 class AuthService(
 
@@ -326,7 +325,6 @@ class AuthService(
     }
 
 }
-
 class UserServiceImpl : UserService {
     override fun create() {
         TODO("Not yet implemented")
@@ -347,8 +345,7 @@ class FileServiceImpl(
                 val optionalTaks = taskRepository.findById(it)
                 if (optionalTaks.isPresent) {
                     task = optionalTaks.get()
-                    uploadFolder =
-                        task!!.catalog.project.name + '\\' + task!!.catalog.catalogTemplate.name + '\\' + task!!.name
+                    uploadFolder = task!!.catalog.project.name + '\\' + task!!.catalog.catalogTemplate.name + '\\' + task!!.name
                 }
             }
             if (!java.io.File(uploadFolder).exists()) {

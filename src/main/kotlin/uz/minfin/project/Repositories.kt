@@ -1,7 +1,9 @@
 package uz.minfin.project
 
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.NoRepositoryBean
@@ -22,7 +24,18 @@ interface ProjectRepository:BaseRepository<Project>{
 
     fun existsByName(name: String):Boolean
     fun findByIdAndDeletedFalse(id: Long):Optional<Project>
+    @Query("select p from Project p where p.deleted = false")
     fun getAllByDeletedFalse():List<Project>
+    @Query("select p from Project p where p.deleted = false and p.status='TODO'")
+    fun getAllByDeletedFalseAndStatusTodo():List<Project>
+    @Query("select p from Project p where p.deleted = false and p.status='DOING'")
+    fun getAllByDeletedFalseAndStatusDoing():List<Project>
+    @Query("select p from Project p where p.deleted = false and p.status='DONE'")
+    fun getAllByDeletedFalseAndStatusDone():List<Project>
+  @Query("select * from project  where project.name  ILIKE  CONCAT('%', :name, '%')", nativeQuery = true)
+  fun searchProject(name:String,pageable: Pageable):List<Project>
+
+
 
 }
 
