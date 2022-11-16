@@ -50,7 +50,6 @@ class Project(
 @Entity
 class Catalog(
     @ManyToOne
-
     var catalogTemplate: CatalogTemplate,
     var description: String,
     @Column( nullable = false, length = 15)
