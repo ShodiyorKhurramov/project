@@ -3,11 +3,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/order_food
-    username: postgres
-    password: 123
-  mvc:
-    static-path-pattern: /resources/static/**
+    url: jdbc:ec2-3-219-135-162.compute-1.amazonaws.com:5432/dbs6j51vvjhcrh
+    username: ewfjwhzpbucebp
+    password: 329bee837bc385c4b0a121f939f205ecf92f99d5a6f3d46eeb789d7df0326388
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
