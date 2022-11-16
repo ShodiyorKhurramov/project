@@ -61,6 +61,9 @@ class CatalogController(private val catalogService: CatalogService){
     @GetMapping("{id}")
     fun getOne(@PathVariable id: Long) = catalogService.getOne(id)
 
+    @GetMapping("getByProjectId/{id}")
+    fun getByProjectId( @PathVariable id: Long) = catalogService.getByProjectId(id)
+
     @GetMapping("getAll")
     fun getAll() = catalogService.getAll()
 

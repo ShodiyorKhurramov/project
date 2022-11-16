@@ -40,6 +40,7 @@ interface CatalogService{
     fun update(id: Long, dto: CatalogUpdateDto): CatalogResponseDto
     fun delete(id: Long): BaseMessage
     fun getOne(id: Long): CatalogResponseDto
+    fun getByProjectId(id:Long):List<CatalogResponseDto>
     fun getAll(): List<CatalogResponseDto>
 }
 
@@ -194,6 +195,9 @@ class CatalogServiceImpl(
         return CatalogResponseDto.toDto(catalog.get())
 
     }
+
+    override fun getByProjectId(id: Long)=catalogRepository.getByProjectIdAndDeletedFalse(id).map { CatalogResponseDto.toDto(it) }
+
     override fun getAll() = catalogRepository.getAllByDeletedFalse().map { CatalogResponseDto.toDto(it) }
 
 

@@ -84,12 +84,12 @@ data class CatalogResponseDto(
      var status: ProjectStatus = ProjectStatus.TODO,
      var startDate: Date,
      var endDate: Date,
-     var project: ProjectResponseDto
+     var projectId: Long?
 
 ) {
      companion object {
           fun toDto(c: Catalog) = c.run {
-               CatalogResponseDto(id!!, CatalogTemplateResponseDto.toDto(catalogTemplate), description, status, startDate, endDate, ProjectResponseDto.toDto(project))
+               CatalogResponseDto(id!!, CatalogTemplateResponseDto.toDto(catalogTemplate), description, status, startDate, endDate,project.id)
           }
      }
 }

@@ -46,6 +46,9 @@ interface CatalogRepository:BaseRepository<Catalog>{
     fun existsByCatalogTemplateIdAndProjectId(catalogTemplateId: Long, projectId: Long):Boolean
     fun findByIdAndDeletedFalse(id: Long):Optional<Catalog>
     fun getAllByDeletedFalse():List<Catalog>
+
+    @Query("select c from Catalog c where c.project.id = ?1 and c.deleted = false")
+    fun getByProjectIdAndDeletedFalse(projectId: Long):List<Catalog>
 }
 
 interface CatalogTemplateRepository:BaseRepository<CatalogTemplate>{

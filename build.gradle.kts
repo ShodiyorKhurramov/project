@@ -49,6 +49,15 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+
+
+
+tasks.getByName<Jar>("jar") {
+
+    enabled = false
+
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
