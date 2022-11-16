@@ -1,8 +1,6 @@
 package uz.minfin.project
 
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -44,8 +42,8 @@ class ProjectController(private val projectService: ProjectService){
     @GetMapping("getDoneProjects")
     fun getDoneProjects() = projectService.getDoneProjects()
 
-    @GetMapping("search/{name}")
-    fun searchProject(@PathVariable name: String,page:Int,size:Int)= projectService.searchProject(name, PageRequest.of(page,size))
+    @GetMapping("search/{s}")
+    fun searchProject(@PathVariable s: String,page:Int,size:Int,sort:String)= projectService.searchProject(s, PageRequest.of(page,size),sort)
 }
 
 @RestController

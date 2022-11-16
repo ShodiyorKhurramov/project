@@ -29,7 +29,7 @@ interface ProjectService{
     fun getToDoProjects(): List<ProjectResponseDto>
     fun getDoingProjects(): List<ProjectResponseDto>
     fun getDoneProjects(): List<ProjectResponseDto>
-    fun searchProject(name:String,page: Pageable): List<ProjectResponseDto>
+    fun searchProject(s:String,page: Pageable,sort: String): List<ProjectResponseDto>
 
 
 }
@@ -127,7 +127,18 @@ class ProjectServiceImpl(
     override fun getToDoProjects()=projectRepository.getAllByDeletedFalseAndStatusTodo().map { ProjectResponseDto.toDto(it) }
     override fun getDoingProjects()=projectRepository.getAllByDeletedFalseAndStatusDoing().map { ProjectResponseDto.toDto(it) }
     override fun getDoneProjects()=projectRepository.getAllByDeletedFalseAndStatusDone().map { ProjectResponseDto.toDto(it) }
-    override fun searchProject(name: String,page: Pageable)= projectRepository.searchProject(name,page).map { ProjectResponseDto.toDto(it) }
+    override fun searchProject(s: String,page: Pageable,sort:String): List<ProjectResponseDto> {
+
+       return when(sort){
+             "name"->{  projectRepository.searchName(s, page).map { ProjectResponseDto.toDto(it) } }
+              "id"->{ projectRepository.searchId(s.toLong(), page).map { ProjectResponseDto.toDto(it) }}
+           else -> { throw  ObjectNotFoundException()}
+       }
+
+
+
+
+    }
 
 }
 @Service

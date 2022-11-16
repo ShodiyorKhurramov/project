@@ -32,8 +32,11 @@ interface ProjectRepository:BaseRepository<Project>{
     fun getAllByDeletedFalseAndStatusDoing():List<Project>
     @Query("select p from Project p where p.deleted = false and p.status='DONE'")
     fun getAllByDeletedFalseAndStatusDone():List<Project>
-  @Query("select * from project  where project.name  ILIKE  CONCAT('%', :name, '%')", nativeQuery = true)
-  fun searchProject(name:String,pageable: Pageable):List<Project>
+    @Query("select * from project  where project.name  ILIKE  CONCAT('%', :name, '%')", nativeQuery = true)
+    fun searchName(name:String,pageable: Pageable):List<Project>
+
+    @Query("select * from project  where project.id  ILIKE  CONCAT('%', :id, '%')", nativeQuery = true)
+    fun searchId(id:Long,pageable: Pageable):List<Project>
 
 
 
