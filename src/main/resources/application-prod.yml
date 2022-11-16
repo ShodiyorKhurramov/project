@@ -19,8 +19,16 @@ spring:
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
       ddl-auto: update
+
 file:
   path: '/project/uploads/'
+
+springdoc:
+    swagger-ui:
+      try-it-out-enabled: true
+      path: ui
+    api-docs:
+      path: /api/doc
 
 
 
