@@ -16,8 +16,6 @@ class BaseEntity(
     @Column(nullable = false) @ColumnDefault(value = "false") var deleted: Boolean = false
 )
 
-
-
 @Entity(name = "users")
 class User(
     @Column(length = 30, nullable = false) var firstName: String,
@@ -40,8 +38,7 @@ class Project(
     @Enumerated(EnumType.STRING) var status: ProjectStatus = ProjectStatus.TODO,
     @Column( nullable = false)  var startDate: Date,
     @Column( nullable = false) var endDate: Date,
-    @OneToOne
-    var logo: File?=null,
+    @OneToOne var logo: File?=null,
     @Enumerated(EnumType.STRING) var type: ProjectType?=null
 
 ) : BaseEntity()
@@ -94,5 +91,4 @@ class File(
     @ManyToOne
     var task: Task? = null,
     var size: Long
-
 ) : BaseEntity()

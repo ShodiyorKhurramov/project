@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import uz.minfin.project.security.Utils.JWTUtils
 
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
@@ -65,6 +66,8 @@ interface FileService {
     fun getFile(hashId: String): FileDownloadDto
     fun get(hashId: String):FileUrlResource
     fun getTaskId(id:Long):List<FileDownloadDto>
+
+    fun delete(hashId: String):BaseMessage
 }
 
 
@@ -296,7 +299,9 @@ class TaskServiceImpl(
 
 @Service
 interface UserService {
-    fun create()
+    fun create(dto: UserCreateDto):BaseMessage
+    fun update(id: Long, dto: UserUpdateDto): BaseMessage
+    fun delete(id: Long): BaseMessage
 }
 @Service
 class AuthService(
@@ -325,9 +330,41 @@ class AuthService(
     }
 
 }
-class UserServiceImpl : UserService {
-    override fun create() {
-        TODO("Not yet implemented")
+
+@Service
+class UserServiceImpl(
+    private val userRepository: UserRepository,
+    private val jwtUtils: JWTUtils
+) : UserService {
+    override fun create(dto: UserCreateDto):BaseMessage {
+        (userRepository.existsByUserName(dto.userName!!) || userRepository.existsByPhoneNumber(dto.phoneNumber)).throwIfTrue { AlreadyReportedException() }
+        dto.apply {
+            userRepository.save(User(firstName, lastName, phoneNumber, userName, jwtUtils.passwordEncoder()!!.encode(password), pnfl))
+        }
+        return BaseMessage.OK
+    }
+
+    override fun update(id: Long, dto: UserUpdateDto): BaseMessage {
+        val userOp = userRepository.findById(id)
+        (userOp.isPresent).throwIfFalse { ObjectNotFoundException() }
+        dto.apply {
+            firstName?.let { userOp.get().firstName = it }
+            lastName?.let { userOp.get().lastName = it }
+            phoneNumber?.let { userOp.get().firstName = it }
+            userName?.let { userOp.get().firstName = it }
+            pnfl?.let { userOp.get().firstName = it }
+            role?.let { userOp.get().role = Role.USER }
+        }
+        userRepository.save(userOp.get())
+        return BaseMessage.OK
+    }
+
+    override fun delete(id: Long): BaseMessage {
+        val userOp = userRepository.findById(id)
+        (userOp.isPresent).throwIfFalse { ObjectNotFoundException() }
+        userOp.get().deleted = true
+        userRepository.save(userOp.get())
+        return BaseMessage.OK
     }
 
 }
@@ -345,7 +382,8 @@ class FileServiceImpl(
                 val optionalTaks = taskRepository.findById(it)
                 if (optionalTaks.isPresent) {
                     task = optionalTaks.get()
-                    uploadFolder = task!!.catalog.project.name + '\\' + task!!.catalog.catalogTemplate.name + '\\' + task!!.name
+                    uploadFolder =
+                        task!!.catalog.project.name + '\\' + task!!.catalog.catalogTemplate.name + '\\' + task!!.name + '\\'
                 }
             }
             if (!java.io.File(uploadFolder).exists()) {
@@ -364,7 +402,7 @@ class FileServiceImpl(
             )
             file.hashId = Hashids(multipartFile.name, 8).encode(file.id!!)
             fileRepository.save(file)
-            Files.copy(multipartFile.inputStream, Path(uploadFolder))
+            Files.copy(multipartFile.inputStream, Path("$uploadFolder + ${file.hashId}.${file.mimeType}"))
             return file.hashId;
         }
     }
@@ -373,15 +411,23 @@ class FileServiceImpl(
         file.isPresent.throwIfFalse { ObjectNotFoundException() }
         return FileDownloadDto.toDto(file.get())
     }
-    override fun get(hashId: String):FileUrlResource  {
+    override fun get(hashId: String):FileUrlResource {
         val file = fileRepository.findByHashIdAndDeletedFalse(hashId)
         file.isPresent.throwIfFalse { ObjectNotFoundException() }
-        return FileUrlResource(file.get().path)
+        return FileUrlResource("${file.get().path}${file.get().name}.${file.get().mimeType}")
     }
     override fun getTaskId(id: Long): List<FileDownloadDto> {
         val list = fileRepository.findByTaskId(id)
         list.isEmpty().throwIfTrue { ObjectNotFoundException() }
         return list.map { FileDownloadDto.toDto(it) }
+    }
+
+    override fun delete(hashId: String): BaseMessage {
+        val file = fileRepository.findByHashIdAndDeletedFalse(hashId)
+        (file.isPresent).throwIfFalse { ObjectNotFoundException() }
+        file.get().deleted = true
+        fileRepository.save(file.get())
+        return BaseMessage.DELETE
     }
 
 
