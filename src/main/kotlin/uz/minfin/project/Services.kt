@@ -26,9 +26,7 @@ interface ProjectService{
     fun delete(id: Long): BaseMessage
     fun getOne(id: Long): ProjectResponseDto
     fun getAll(): List<ProjectResponseDto>
-    fun getToDoProjects(): List<ProjectResponseDto>
-    fun getDoingProjects(): List<ProjectResponseDto>
-    fun getDoneProjects(): List<ProjectResponseDto>
+    fun getByStatusProjects(status: ProjectStatus): List<ProjectResponseDto>
     fun searchProject(s:String,page: Pageable,sort: String): List<ProjectResponseDto>
 
 
@@ -125,9 +123,8 @@ class ProjectServiceImpl(
 
 
     override fun getAll()= projectRepository.getAllByDeletedFalse().map { ProjectResponseDto.toDto(it) }
-    override fun getToDoProjects()=projectRepository.getAllByDeletedFalseAndStatusTodo().map { ProjectResponseDto.toDto(it) }
-    override fun getDoingProjects()=projectRepository.getAllByDeletedFalseAndStatusDoing().map { ProjectResponseDto.toDto(it) }
-    override fun getDoneProjects()=projectRepository.getAllByDeletedFalseAndStatusDone().map { ProjectResponseDto.toDto(it) }
+    override fun getByStatusProjects(status: ProjectStatus)=projectRepository.getAllByDeletedFalseAndStatus(status).map { ProjectResponseDto.toDto(it) }
+
     override fun searchProject(s: String,page: Pageable,sort:String): List<ProjectResponseDto> {
 
        return when(sort){

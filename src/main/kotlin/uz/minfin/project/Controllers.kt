@@ -33,14 +33,8 @@ class ProjectController(private val projectService: ProjectService){
     @GetMapping("getAll")
     fun getAll() = projectService.getAll()
 
-    @GetMapping("getToDoProjects")
-    fun getToDoProjects() = projectService.getToDoProjects()
-
-    @GetMapping("getDoingProjects")
-    fun getDoingProjects() = projectService.getDoingProjects()
-
-    @GetMapping("getDoneProjects")
-    fun getDoneProjects() = projectService.getDoneProjects()
+    @GetMapping("getByStatusProjects/{status}")
+    fun getByStatusProjects(@PathVariable status:ProjectStatus) = projectService.getByStatusProjects(status)
 
     @GetMapping("search/{s}")
     fun searchProject(@PathVariable s: String,page:Int,size:Int,sort:String)= projectService.searchProject(s, PageRequest.of(page,size),sort)

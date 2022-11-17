@@ -26,12 +26,10 @@ interface ProjectRepository:BaseRepository<Project>{
     fun findByIdAndDeletedFalse(id: Long):Optional<Project>
     @Query("select p from Project p where p.deleted = false")
     fun getAllByDeletedFalse():List<Project>
-    @Query("select p from Project p where p.deleted = false and p.status='TODO'")
-    fun getAllByDeletedFalseAndStatusTodo():List<Project>
-    @Query("select p from Project p where p.deleted = false and p.status='DOING'")
-    fun getAllByDeletedFalseAndStatusDoing():List<Project>
-    @Query("select p from Project p where p.deleted = false and p.status='DONE'")
-    fun getAllByDeletedFalseAndStatusDone():List<Project>
+
+    @Query("select p from Project p where p.deleted = false and p.status = ?1")
+    fun getAllByDeletedFalseAndStatus(status: ProjectStatus):List<Project>
+
     @Query("select * from project  where project.name  ILIKE  CONCAT('%', :name, '%')", nativeQuery = true)
     fun searchName(name:String,pageable: Pageable):List<Project>
 
