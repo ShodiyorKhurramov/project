@@ -63,6 +63,9 @@ interface TaskRepository:BaseRepository<Task>{
     fun findByIdAndDeletedFalse(id: Long):Optional<Task>
     fun getAllByDeletedFalse():List<Task>
 
+    @Query("select t from Task t where t.deleted = false and t.catalog.id = ?1")
+    fun getAllByDeletedFalseAndCatalogId(catalogId: Long):List<Task>
+
 }
 
 interface FileRepository:BaseRepository<File>{

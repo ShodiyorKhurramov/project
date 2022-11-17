@@ -26,7 +26,7 @@ interface ProjectService{
     fun delete(id: Long): BaseMessage
     fun getOne(id: Long): ProjectResponseDto
     fun getAll(): List<ProjectResponseDto>
-    fun getByStatusProjects(status: ProjectStatus): List<ProjectResponseDto>
+    fun getByStatusProject(status: ProjectStatus): List<ProjectResponseDto>
     fun searchProject(s:String,page: Pageable,sort: String): List<ProjectResponseDto>
 
 
@@ -55,6 +55,7 @@ interface TaskService{
     fun update(id: Long, dto: TaskUpdateDto): TaskResponseDto
     fun delete(id: Long): BaseMessage
     fun getOne(id: Long): TaskResponseDto
+    fun getByCatalogId(id:Long):List<TaskResponseDto>
     fun getAll(): List<TaskResponseDto>
 }
 
@@ -123,7 +124,7 @@ class ProjectServiceImpl(
 
 
     override fun getAll()= projectRepository.getAllByDeletedFalse().map { ProjectResponseDto.toDto(it) }
-    override fun getByStatusProjects(status: ProjectStatus)=projectRepository.getAllByDeletedFalseAndStatus(status).map { ProjectResponseDto.toDto(it) }
+    override fun getByStatusProject(status: ProjectStatus)=projectRepository.getAllByDeletedFalseAndStatus(status).map { ProjectResponseDto.toDto(it) }
 
     override fun searchProject(s: String,page: Pageable,sort:String): List<ProjectResponseDto> {
 
@@ -299,6 +300,9 @@ class TaskServiceImpl(
         return TaskResponseDto.toDto(task.get())
 
     }
+
+    override fun getByCatalogId(id: Long): List<TaskResponseDto> = taskRepository.getAllByDeletedFalseAndCatalogId(id).map { TaskResponseDto.toDtoId(it) }
+
     override fun getAll() = taskRepository.getAllByDeletedFalse().map { TaskResponseDto.toDto(it) }
 
 

@@ -150,15 +150,21 @@ data class TaskResponseDto(
      var status: ProjectStatus = ProjectStatus.TODO,
      var startDate: Date,
      var endDate: Date,
-     var catalog:CatalogResponseDto
+     var catalog:CatalogResponseDto?=null,
+     var catalogId:Long?=null,
 ){
      companion object{
 
           fun toDto(t:Task) = t.run {
                TaskResponseDto(id!!,name,description,status,startDate,endDate,CatalogResponseDto.toDto(catalog))
           }
+
+          fun toDtoId(t:Task)=t.run {
+               TaskResponseDto(id!!,name,description,status,startDate,endDate,null,catalog.id)
+          }
      }
 }
+
 
 
 

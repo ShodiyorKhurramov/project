@@ -33,8 +33,8 @@ class ProjectController(private val projectService: ProjectService){
     @GetMapping("getAll")
     fun getAll() = projectService.getAll()
 
-    @GetMapping("getByStatusProjects/{status}")
-    fun getByStatusProjects(@PathVariable status:ProjectStatus) = projectService.getByStatusProjects(status)
+    @GetMapping("getByStatusProject/{status}")
+    fun getByStatusProject(@PathVariable status:ProjectStatus) = projectService.getByStatusProject(status)
 
     @GetMapping("search/{s}")
     fun searchProject(@PathVariable s: String,page:Int,size:Int,sort:String)= projectService.searchProject(s, PageRequest.of(page,size),sort)
@@ -96,6 +96,9 @@ class TaskController(private val taskService: TaskService){
 
     @GetMapping("{id}")
     fun getOne(@PathVariable id: Long) = taskService.getOne(id)
+
+    @GetMapping("getByCatalogId/{id}")
+    fun getByCatalogId( @PathVariable id: Long) = taskService.getByCatalogId(id)
 
     @GetMapping("getAll")
     fun getAll() = taskService.getAll()
