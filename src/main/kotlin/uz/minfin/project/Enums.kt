@@ -31,3 +31,12 @@ enum class ProjectType{
 enum class ErrorCode(val code: Int){
     VALIDATION_ERROR(103)
 }
+
+
+enum class Sort{
+    NAME,
+    ID,
+    STATUS,
+    START_DATE,
+    END_DATE
+}

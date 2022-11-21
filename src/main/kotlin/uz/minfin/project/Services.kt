@@ -6,6 +6,7 @@ import org.apache.http.entity.InputStreamEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.hashids.Hashids
 import org.springframework.core.io.FileUrlResource
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -27,7 +28,7 @@ interface ProjectService{
     fun getOne(id: Long): ProjectResponseDto
     fun getAll(): List<ProjectResponseDto>
     fun getByStatusProject(status: ProjectStatus): List<ProjectResponseDto>
-    fun searchProject(s:String,page: Pageable,sort: String): List<ProjectResponseDto>
+    fun searchProject(s:String,page: Pageable,sort:Sort): Page<ProjectResponseDto>
 
 
 }
@@ -126,11 +127,11 @@ class ProjectServiceImpl(
     override fun getAll()= projectRepository.getAllByDeletedFalse().map { ProjectResponseDto.toDto(it) }
     override fun getByStatusProject(status: ProjectStatus)=projectRepository.getAllByDeletedFalseAndStatus(status).map { ProjectResponseDto.toDto(it) }
 
-    override fun searchProject(s: String,page: Pageable,sort:String): List<ProjectResponseDto> {
+    override fun searchProject(s: String,page: Pageable,sort: Sort): Page<ProjectResponseDto> {
 
        return when(sort){
-             "name"->{  projectRepository.searchName(s, page).map { ProjectResponseDto.toDto(it) } }
-              "id"->{ projectRepository.searchId(s.toLong(), page).map { ProjectResponseDto.toDto(it) }}
+             Sort.NAME ->{  projectRepository.searchName(s, page).map { ProjectResponseDto.toDto(it) } }
+              Sort.ID->{ projectRepository.searchId(s.toLong(), page).map { ProjectResponseDto.toDto(it) }}
            else -> { throw  ObjectNotFoundException()}
        }
 

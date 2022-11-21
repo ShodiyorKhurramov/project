@@ -7,7 +7,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 import javax.validation.constraints.NotBlank
-
+import javax.validation.constraints.Size
 
 
 data class ProjectCreateDto(
@@ -202,5 +202,13 @@ data class AppErrorDto(
      var error:String? = status.reasonPhrase,
      var message:String?,
      var path:String,
+)
+
+data class CustomPage(
+     @get:Size(min = 0)
+     var page:Int=0,
+     @get:Size(min = 1)
+     var size:Int=1,
+     var sort:Sort=Sort.NAME
 )
 

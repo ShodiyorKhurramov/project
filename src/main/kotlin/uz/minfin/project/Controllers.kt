@@ -37,7 +37,7 @@ class ProjectController(private val projectService: ProjectService){
     fun getByStatusProject(@PathVariable status:ProjectStatus) = projectService.getByStatusProject(status)
 
     @GetMapping("search/{s}")
-    fun searchProject(@PathVariable s: String,page:Int,size:Int,sort:String)= projectService.searchProject(s, PageRequest.of(page,size),sort)
+    fun searchProject(@PathVariable s: String,page:CustomPage)= projectService.searchProject(s, PageRequest.of(page.page,page.size),page.sort)
 }
 
 @RestController
@@ -64,7 +64,7 @@ class CatalogController(private val catalogService: CatalogService){
 }
 
 @RestController
-@RequestMapping("api/v1/catalogTemplate ")
+@RequestMapping("api/v1/catalogTemplate")
 class CatalogTemplateController(private val catalogTemplateService: CatalogTemplateService){
     @PostMapping("create")
     fun creates(@Valid @RequestBody dto: CatalogTemplateCreateDto) = catalogTemplateService.create(dto)

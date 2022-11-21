@@ -1,5 +1,6 @@
 package uz.minfin.project
 
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
@@ -30,11 +31,11 @@ interface ProjectRepository:BaseRepository<Project>{
     @Query("select p from Project p where p.deleted = false and p.status = ?1")
     fun getAllByDeletedFalseAndStatus(status: ProjectStatus):List<Project>
 
-    @Query("select * from project  where project.name  ILIKE  CONCAT('%', :name, '%')", nativeQuery = true)
-    fun searchName(name:String,pageable: Pageable):List<Project>
+    @Query("select * from project p where p.name  ILIKE  CONCAT('%', :name, '%') and p.deleted=false ", nativeQuery = true)
+    fun searchName(name:String,pageable: Pageable): Page<Project>
 
-    @Query("select * from project  where project.id  ILIKE  CONCAT('%', :id, '%')", nativeQuery = true)
-    fun searchId(id:Long,pageable: Pageable):List<Project>
+    @Query("select * from project p  where p.id=:id and p.deleted=false", nativeQuery = true)
+    fun searchId(id:Long,pageable: Pageable):Page<Project>
 
 
 
