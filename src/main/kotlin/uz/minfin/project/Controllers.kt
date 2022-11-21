@@ -1,6 +1,10 @@
 package uz.minfin.project
 
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.*
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -12,6 +16,18 @@ class FileController(
 ) {
     @PostMapping("/upload"/*, consumes = arrayOf(MediaType.MULTIPART_FORM_DATA_VALUE)*/)
     fun saveFile(@RequestBody dto: FileUploadDto) = fileService.fileUpload(dto)
+
+    @GetMapping("filebytaskid")
+    fun getFilesBTasKId(@PathVariable id: Long) = fileService.getTaskId(id)
+
+    @GetMapping("filebyid")
+    fun getFileById(@PathVariable hashId: String) = fileService.getFile(hashId)
+
+    @GetMapping("filedownload")
+    fun downloadFile(@PathVariable hashId: String) = fileService.get(hashId)
+
+    @DeleteMapping("delete/hashid")
+    fun delete(@PathVariable hashid: String) = fileService.delete(hashid)
 }
 
 
@@ -105,11 +121,26 @@ class TaskController(private val taskService: TaskService){
 }
 
 @RestController
-    @RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/auth")
 class AuthController(
     private val authService: AuthService
-){
+) {
     @PostMapping("login")
     fun authLogin(@RequestBody dto: LoginDto) = authService.login(dto)
 
+}
+
+@RestController
+@RequestMapping("api/v1/user")
+class UserController(
+    private val userService: UserService
+) {
+    @PostMapping("create")
+    fun createUser(@RequestBody dto: UserCreateDto) = userService.create(dto)
+
+    @PutMapping("update")
+    fun update(@RequestParam id: Long, @RequestBody dto: UserUpdateDto) = userService.update(id, dto)
+
+    @DeleteMapping("delete/{id}")
+    fun delete(@PathVariable id: Long) = userService.delete(id)
 }

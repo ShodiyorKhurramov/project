@@ -1,6 +1,5 @@
 package uz.minfin.project
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.MultipartFile
 import java.sql.Timestamp
@@ -8,6 +7,7 @@ import java.time.LocalDateTime
 import java.util.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
+
 
 
 data class ProjectCreateDto(
@@ -211,4 +211,40 @@ data class CustomPage(
      var size:Int=1,
      var sort:Sort=Sort.NAME
 )
+
+data class UserCreateDto(
+     var firstName: String,
+     var lastName: String,
+     var phoneNumber: String,
+     var userName: String?,
+     var password: String,
+     var pnfl: String,
+     var role: String
+)
+
+data class UserUpdateDto(
+     var firstName: String? = null,
+     var lastName: String? = null,
+     var phoneNumber: String? = null,
+     var userName: String? = null,
+     var pnfl: String? = null,
+     var role: String? = null
+)
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class UserResponseDto(
+     var id:Long,
+     var firstName: String,
+     var lastName: String,
+     var phoneNumber: String,
+     var userName: String?,
+     var pnfl: String,
+     var role: String
+){
+     companion object {
+          fun toDto(u:User) = u.run {
+               UserResponseDto(id!!,firstName,lastName,phoneNumber,userName,pnfl,role.name)
+          }
+     }
+}
 

@@ -76,4 +76,6 @@ interface FileRepository:BaseRepository<File>{
 }
 interface UserRepository: BaseRepository<User> {
     fun findByUserName(username:String):Optional<User>
+    fun existsByUserName(userName: String):Boolean
+    fun existsByPhoneNumber(phoneNumber: String):Boolean
 }
