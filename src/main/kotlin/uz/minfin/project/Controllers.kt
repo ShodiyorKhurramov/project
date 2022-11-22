@@ -10,7 +10,7 @@ import javax.validation.Valid
 class FileController(
     private val fileService: FileServiceImpl
 ) {
-    @PostMapping("/upload"/*, consumes = arrayOf(MediaType.MULTIPART_FORM_DATA_VALUE)*/)
+    @PostMapping("/upload", consumes = arrayOf(MediaType.MULTIPART_FORM_DATA_VALUE))
     fun saveFile(@RequestBody dto: FileUploadDto) = fileService.fileUpload(dto)
 
     @GetMapping("filebytaskid")
