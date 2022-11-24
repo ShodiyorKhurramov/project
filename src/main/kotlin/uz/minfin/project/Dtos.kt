@@ -177,11 +177,12 @@ data class FileUploadDto(
 data class FileDownloadDto(
     var name: String,
     var description: String,
-    var hashId: String
+    var hashId: String,
+    var mimetype:String
 ){
      companion object {
           fun toDto(f:File) = f.run {
-               FileDownloadDto(name,description,hashId!!)
+               FileDownloadDto(name,description,hashId!!,mimeType)
           }
      }
 }

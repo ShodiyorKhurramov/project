@@ -2,6 +2,7 @@ package uz.minfin.project
 
 import org.springframework.web.bind.annotation.*
 import org.springframework.data.domain.PageRequest
+import org.springframework.web.multipart.MultipartFile
 import javax.validation.Valid
 
 
@@ -10,8 +11,12 @@ import javax.validation.Valid
 class FileController(
     private val fileService: FileServiceImpl
 ) {
-    @PostMapping("/upload"/*, consumes = arrayOf(MediaType.MULTIPART_FORM_DATA_VALUE)*/)
-    fun saveFile(@RequestBody dto: FileUploadDto) = fileService.fileUpload(dto)
+    @PostMapping("/upload")
+    fun saveFile(@RequestParam("multipartFile") multipartFile: MultipartFile, @RequestParam("description") description: String, @RequestParam("taskId") taskId:Long?) = fileService.fileUpload(
+        multipartFile,
+        description,
+        taskId
+    )
 
     @GetMapping("filebytaskid")
     fun getFilesBTasKId(@PathVariable id: Long) = fileService.getTaskId(id)
@@ -19,7 +24,7 @@ class FileController(
     @GetMapping("filebyid")
     fun getFileById(@PathVariable hashId: String) = fileService.getFile(hashId)
 
-    @GetMapping("filedownload")
+    @GetMapping("filedownload/{hashId}")
     fun downloadFile(@PathVariable hashId: String) = fileService.get(hashId)
 
     @DeleteMapping("delete/hashid")

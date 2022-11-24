@@ -9,16 +9,20 @@ import org.springframework.core.io.FileUrlResource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import uz.minfin.project.security.Utils.JWTUtils
 
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
+import javax.print.attribute.standard.Media
 import kotlin.io.path.Path
 
 
@@ -63,11 +67,10 @@ interface TaskService{
 
 @Service
 interface FileService {
-    fun fileUpload(dto: FileUploadDto): String?
+    fun fileUpload(multipartFile: MultipartFile, description: String, taskId:Long?): String?
     fun getFile(hashId: String): FileDownloadDto
-    fun get(hashId: String):FileUrlResource
+    fun get(hashId: String):ResponseEntity<*>
     fun getTaskId(id:Long):List<FileDownloadDto>
-
     fun delete(hashId: String):BaseMessage
 }
 
@@ -391,10 +394,9 @@ class UserServiceImpl(
 class FileServiceImpl(
     private val fileRepository: FileRepository, private val taskRepository: TaskRepository
 ) : FileService {
-    override fun fileUpload(dto: FileUploadDto): String? {
+    override fun fileUpload(multipartFile: MultipartFile, description: String, taskId:Long?): String? {
         var uploadFolder = "logo"
         var task: Task? = null
-        dto.apply {
             taskId?.let {
                 val optionalTaks = taskRepository.findById(it)
                 if (optionalTaks.isPresent) {
@@ -418,20 +420,24 @@ class FileServiceImpl(
                 )
             )
             file.hashId = Hashids(multipartFile.name, 8).encode(file.id!!)
+            file.path = "$uploadFolder\\${file.hashId}.${file.name.substring(file.name.lastIndexOf('.'))}"
             fileRepository.save(file)
-            Files.copy(multipartFile.inputStream, Path("$uploadFolder + ${file.hashId}.${file.mimeType}"))
+            Files.copy(multipartFile.inputStream, Path("$uploadFolder\\${file.hashId}.${file.name.substring(file.name.lastIndexOf('.'))}"))
             return file.hashId;
-        }
+
     }
     override fun getFile(hashId: String): FileDownloadDto {
         val file = fileRepository.findByHashIdAndDeletedFalse(hashId)
         file.isPresent.throwIfFalse { ObjectNotFoundException() }
         return FileDownloadDto.toDto(file.get())
     }
-    override fun get(hashId: String):FileUrlResource {
+    override fun get(hashId: String): ResponseEntity<*> {
         val file = fileRepository.findByHashIdAndDeletedFalse(hashId)
         file.isPresent.throwIfFalse { ObjectNotFoundException() }
-        return FileUrlResource("${file.get().path}${file.get().name}.${file.get().mimeType}")
+        val headers = HttpHeaders().apply {
+            contentType = MediaType.parseMediaType(file.get().mimeType)
+        }
+        return ResponseEntity.ok().headers(headers).body((FileUrlResource(file.get().path)))
     }
     override fun getTaskId(id: Long): List<FileDownloadDto> {
         val list = fileRepository.findByTaskId(id)
